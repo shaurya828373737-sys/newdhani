@@ -1,637 +1,624 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DHANI WIN — Master Prediction Tool</title>
-  <meta name="description" content="DHANI WIN — The most accurate Wingo prediction tool with 98% accuracy." />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DHANI WIN — Prediction Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:'Rajdhani',sans-serif}
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+/* ── TOP BAR ── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;height:44px;z-index:9000;
+  background:rgba(10,10,15,0.97);
+  border-bottom:1px solid rgba(240,185,11,0.3);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;gap:8px;
+}
+#topbar .logo{
+  font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;
+  color:#f0b90b;letter-spacing:2px;white-space:nowrap;
+  text-shadow:0 0 14px rgba(240,185,11,0.5);
+}
+#topbar .logo span{color:#fff}
+.nav-tabs{display:flex;gap:5px;flex:1;justify-content:center}
+.nav-tab{
+  padding:5px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:#a0a0c0;
+  font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.nav-tab:hover,.nav-tab.active{
+  background:rgba(240,185,11,0.15);border-color:rgba(240,185,11,0.4);color:#f0b90b;
+}
+#status-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
+  border-radius:20px;padding:3px 10px;white-space:nowrap;
+}
+#status-dot{width:7px;height:7px;border-radius:50%;background:#00e676;
+  animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+#status-text{font-size:0.72rem;color:#00e676;font-weight:600}
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="UI-look.css" />
-  <link rel="stylesheet" href="get-accurate-result.css" />
+/* ── IFRAME (full page below topbar) ── */
+#site-frame{
+  position:fixed;top:44px;left:0;right:0;bottom:0;
+  width:100%;height:calc(100vh - 44px);
+  border:none;background:#111;
+}
+
+/* ── CART TOGGLE BTN ── */
+#cart-btn{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  width:58px;height:58px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#f0b90b,#c99a08);
+  font-size:1.5rem;cursor:pointer;
+  box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0.4);
+  animation:pulse-btn 2.5s infinite;transition:transform 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+#cart-btn:hover{transform:scale(1.1)}
+@keyframes pulse-btn{
+  0%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0.35)}
+  50%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 14px rgba(240,185,11,0)}
+  100%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0)}
+}
+
+/* ── CART WIDGET ── */
+#cart{
+  position:fixed;bottom:92px;right:24px;z-index:9998;
+  width:320px;display:none;
+  filter:drop-shadow(0 12px 40px rgba(0,0,0,0.85));
+}
+#cart.open{display:block;animation:cart-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes cart-pop{from{opacity:0;transform:scale(0.6) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.cart-box{
+  background:linear-gradient(160deg,#0f0f1a,#13131f);
+  border:1px solid rgba(240,185,11,0.3);border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* cart header */
+.cart-head{
+  background:linear-gradient(135deg,rgba(240,185,11,0.12),rgba(240,185,11,0.04));
+  border-bottom:1px solid rgba(240,185,11,0.18);
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  cursor:grab;
+}
+.cart-head:active{cursor:grabbing}
+.cart-head-title{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:#f0b90b;letter-spacing:1.5px}
+.cart-badge{
+  font-size:0.65rem;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);
+  border-radius:20px;padding:2px 8px;color:#00e676;font-weight:700;letter-spacing:1px;
+}
+.cart-x{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
+  border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  color:#a0a0c0;cursor:pointer;font-size:0.9rem;transition:all 0.2s;
+}
+.cart-x:hover{background:rgba(255,23,68,0.2);border-color:rgba(255,23,68,0.4);color:#ff1744}
+
+/* cart scroll body */
+.cart-scroll{max-height:380px;overflow-y:auto;padding:12px 14px;scrollbar-width:thin;scrollbar-color:rgba(240,185,11,0.25) transparent}
+.cart-scroll::-webkit-scrollbar{width:3px}
+.cart-scroll::-webkit-scrollbar-thumb{background:rgba(240,185,11,0.25);border-radius:2px}
+</style>
 </head>
 <body>
 
-  <!-- ===================== SITE HEADER ===================== -->
-  <header class="site-header">
-    <div class="logo">DHANI<span>WIN</span></div>
-    <div class="header-status">
-      <span class="status-dot"></span>
-      <span id="header-status-text">Tool Active</span>
-    </div>
-  </header>
 
-  <!-- ===================== MAIN CONTENT ===================== -->
-  <main class="main-content">
+<style>
+/* ── STATUS MSG ── */
+.smsg{
+  background:rgba(240,185,11,0.07);border:1px solid rgba(240,185,11,0.2);
+  border-radius:10px;padding:10px 12px;font-size:0.85rem;color:#f0b90b;
+  font-weight:500;line-height:1.5;margin-bottom:10px;position:relative;overflow:hidden;
+}
+.smsg::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#f0b90b;border-radius:3px 0 0 3px}
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-badge">⚡ AI-POWERED PREDICTION ENGINE</div>
-      <h1>DHANI WIN</h1>
-      <p>The most advanced Wingo prediction tool. Triple-algorithm analysis delivers unmatched accuracy for every round.</p>
-    </section>
+/* ── COUNTER ROW ── */
+.ctr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ctr-lbl{font-size:0.72rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px}
+.ctr-val{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:#f0b90b}
+.ctr-val small{font-size:0.8rem;color:#5a5a7a}
 
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <div class="stat-value" id="stat-accuracy">98%</div>
-        <div class="stat-label">Accuracy</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="stat-predictions">3</div>
-        <div class="stat-label">Algorithms</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="stat-wins">0</div>
-        <div class="stat-label">Session Wins</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="stat-rounds">0</div>
-        <div class="stat-label">Rounds Played</div>
-      </div>
-    </div>
+/* progress bar */
+.pbar{background:rgba(255,255,255,0.05);border-radius:8px;height:5px;margin-bottom:10px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,#f0b90b,#00e676);border-radius:8px;
+  transition:width 0.35s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 8px rgba(240,185,11,0.4)}
 
-    <!-- Info Cards -->
-    <div class="cards-grid">
-      <div class="card">
-        <div class="card-icon">🔬</div>
-        <h3>Triple Analysis</h3>
-        <p>Three independent algorithms (First, Second, Third) analyse your 10-trend input. A prediction is shown only when all three agree.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">⚡</div>
-        <h3>Real-Time Engine</h3>
-        <p>Backend PHP analysis runs in parallel. Results are computed in seconds using pattern-weighted scoring and historical data.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🎯</div>
-        <h3>Smart Retry</h3>
-        <p>If the prediction misses, re-enter your trends to unlock the 99% confidence retry mode with deeper pattern recognition.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>Secure & Private</h3>
-        <p>All data is processed locally on the server. No trend history is stored or shared. Your session stays private.</p>
-      </div>
-    </div>
+/* bubbles */
+.bubbles{display:flex;flex-wrap:wrap;gap:5px;min-height:32px;margin-bottom:10px}
+.bub{padding:3px 9px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:1px;animation:bpop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes bpop{from{opacity:0;transform:scale(0.2)}to{opacity:1;transform:scale(1)}}
+.bub.big{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.35);color:#00e676}
+.bub.sml{background:rgba(255,23,68,0.12);border:1px solid rgba(255,23,68,0.35);color:#ff5577}
 
-    <!-- How To Use -->
-    <section style="max-width:700px;margin:0 auto;padding:2rem;">
-      <h2 style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.3rem;letter-spacing:2px;margin-bottom:1.5rem;text-align:center;">HOW TO USE</h2>
-      <ol style="list-style:none;display:flex;flex-direction:column;gap:1rem;">
-        <li style="display:flex;gap:1rem;align-items:flex-start;">
-          <span style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.2rem;font-weight:700;min-width:36px;">01</span>
-          <span style="color:#a0a0c0;line-height:1.6;">Click the <strong style="color:#fff;">gold cart button</strong> (bottom-right) to open the tool. Log in to dhaniwin0.com first.</span>
-        </li>
-        <li style="display:flex;gap:1rem;align-items:flex-start;">
-          <span style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.2rem;font-weight:700;min-width:36px;">02</span>
-          <span style="color:#a0a0c0;line-height:1.6;">Navigate to <strong style="color:#fff;">WinGo 1 Min</strong> game. The cart will detect the page and activate prediction mode.</span>
-        </li>
-        <li style="display:flex;gap:1rem;align-items:flex-start;">
-          <span style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.2rem;font-weight:700;min-width:36px;">03</span>
-          <span style="color:#a0a0c0;line-height:1.6;">Enter <strong style="color:#fff;">10 trends</strong> (BIG / Small) from the game history — bottom to top. Select the trend number for each.</span>
-        </li>
-        <li style="display:flex;gap:1rem;align-items:flex-start;">
-          <span style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.2rem;font-weight:700;min-width:36px;">04</span>
-          <span style="color:#a0a0c0;line-height:1.6;">After 10 entries, click <strong style="color:#fff;">Analyse</strong>. The three algorithms run simultaneously and show the predicted result.</span>
-        </li>
-        <li style="display:flex;gap:1rem;align-items:flex-start;">
-          <span style="font-family:'Orbitron',monospace;color:#f0b90b;font-size:1.2rem;font-weight:700;min-width:36px;">05</span>
-          <span style="color:#a0a0c0;line-height:1.6;">Confirm with <strong style="color:#fff;">Yes</strong> (reset for next round) or <strong style="color:#fff;">No</strong> (retry with 99% mode).</span>
-        </li>
-      </ol>
-    </section>
+/* trend input */
+.tin-lbl{font-size:0.7rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.tbtn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.tbtn{
+  padding:10px;border-radius:10px;border:2px solid transparent;
+  font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;
+  cursor:pointer;transition:all 0.18s;letter-spacing:1px;
+}
+.tbtn.big{background:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.25);color:#00e676}
+.tbtn.big:hover{background:rgba(0,230,118,0.18);border-color:#00e676;box-shadow:0 0 14px rgba(0,230,118,0.25);transform:translateY(-2px)}
+.tbtn.sml{background:rgba(255,23,68,0.07);border-color:rgba(255,23,68,0.25);color:#ff5577}
+.tbtn.sml:hover{background:rgba(255,23,68,0.18);border-color:#ff1744;box-shadow:0 0 14px rgba(255,23,68,0.25);transform:translateY(-2px)}
 
-  </main>
+/* number select + undo */
+.sel-row{display:flex;gap:6px;margin-bottom:8px}
+.tsel{
+  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  border-radius:8px;padding:7px 10px;color:#fff;font-family:'Rajdhani',sans-serif;
+  font-size:0.88rem;outline:none;cursor:pointer;
+}
+.tsel:focus{border-color:rgba(240,185,11,0.35)}
+.tsel option{background:#13131f}
+.undo-btn{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
+  border-radius:8px;padding:7px 10px;color:#a0a0c0;cursor:pointer;
+  font-size:1rem;transition:all 0.18s;
+}
+.undo-btn:hover{border-color:rgba(255,23,68,0.4);color:#ff5577}
 
-  <!-- ===================== FOOTER ===================== -->
-  <footer class="site-footer">
-    <p>DHANI WIN &copy; 2025 — Prediction Tool &nbsp;|&nbsp; For entertainment purposes &nbsp;|&nbsp; Use responsibly</p>
-  </footer>
+/* analyse button */
+.btn-analyse{
+  width:100%;padding:11px;background:linear-gradient(135deg,#f0b90b,#c99a08);
+  border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
+  font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;
+  transition:all 0.25s;display:none;margin-top:4px;
+}
+.btn-analyse.show{display:block;animation:fadeup 0.4s ease}
+.btn-analyse:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(240,185,11,0.4)}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-  <!-- ===================== TOAST ===================== -->
-  <div class="dhani-toast" id="dhani-toast"></div>
+/* loader */
+.loader{display:none;flex-direction:column;align-items:center;padding:16px 10px;gap:8px}
+.loader.on{display:flex}
+.ring{width:46px;height:46px;border:3px solid rgba(240,185,11,0.15);border-top-color:#f0b90b;border-radius:50%;animation:spin 0.75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-size:0.75rem;color:#a0a0c0;text-align:center}
+.algo-list{width:100%;display:flex;flex-direction:column;gap:4px}
+.ach{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:#5a5a7a;transition:color 0.3s}
+.ach.ok{color:#00e676}
+.ach .dot{width:5px;height:5px;border-radius:50%;background:#5a5a7a;flex-shrink:0;transition:all 0.3s}
+.ach.ok .dot{background:#00e676;box-shadow:0 0 7px rgba(0,230,118,0.6)}
 
-  <!-- ===================== FLOATING CART TOGGLE BUTTON ===================== -->
-  <button id="cart-toggle-btn" title="Open Prediction Tool">🎯</button>
+/* result */
+.result{display:none;flex-direction:column;align-items:center;gap:10px;padding:4px 0}
+.result.show{display:flex;animation:fadeup 0.45s cubic-bezier(0.34,1.56,0.64,1)}
+.res-lbl{font-size:0.7rem;color:#a0a0c0;letter-spacing:2px;text-transform:uppercase}
+.res-pred{
+  font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;
+  letter-spacing:3px;padding:8px 28px;border-radius:12px;text-align:center;
+}
+.res-pred.big{color:#00e676;background:rgba(0,230,118,0.1);border:2px solid rgba(0,230,118,0.4);
+  box-shadow:0 0 28px rgba(0,230,118,0.2);text-shadow:0 0 18px rgba(0,230,118,0.5)}
+.res-pred.sml{color:#ff5577;background:rgba(255,23,68,0.1);border:2px solid rgba(255,23,68,0.4);
+  box-shadow:0 0 28px rgba(255,23,68,0.2);text-shadow:0 0 18px rgba(255,23,68,0.5)}
+.res-conf{display:flex;align-items:center;gap:5px;font-size:0.83rem;color:#f0b90b;font-weight:600}
+.res-q{font-size:0.85rem;color:#a0a0c0;text-align:center;font-weight:500}
+.fb-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
+.btn-yes{padding:9px;background:rgba(0,230,118,0.08);border:2px solid rgba(0,230,118,0.35);
+  border-radius:10px;color:#00e676;font-family:'Orbitron',monospace;font-size:0.75rem;
+  font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
+.btn-yes:hover{background:rgba(0,230,118,0.2);border-color:#00e676;box-shadow:0 0 13px rgba(0,230,118,0.3)}
+.btn-no{padding:9px;background:rgba(255,23,68,0.07);border:2px solid rgba(255,23,68,0.28);
+  border-radius:10px;color:#ff5577;font-family:'Orbitron',monospace;font-size:0.75rem;
+  font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
+.btn-no:hover{background:rgba(255,23,68,0.18);border-color:#ff1744;box-shadow:0 0 13px rgba(255,23,68,0.3)}
 
-  <!-- ===================== FLOATING CART ===================== -->
-  <div id="dhani-cart">
-    <div class="cart-body" id="cart-body">
+/* retry */
+.retry{display:none;background:rgba(213,0,249,0.07);border:1px solid rgba(213,0,249,0.28);
+  border-radius:12px;padding:12px;text-align:center;font-size:0.82rem;color:#e040fb;line-height:1.6;font-weight:500}
+.retry.show{display:block;animation:fadeup 0.4s ease}
 
-      <!-- Cart Header (drag handle) -->
-      <div class="cart-header" id="cart-drag-handle">
-        <div class="cart-header-left">
-          <span class="cart-logo-text">DHANI WIN</span>
-          <span class="cart-accuracy-badge">98% ACC</span>
-        </div>
-        <button class="cart-close-btn" id="cart-close-btn" title="Close">✕</button>
-      </div>
+/* stats row */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:8px;text-align:center}
+.stat-v{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:#f0b90b}
+.stat-l{font-size:0.62rem;color:#5a5a7a;text-transform:uppercase;letter-spacing:1px}
 
-      <!-- Cart Content -->
-      <div class="cart-content" id="cart-content">
+/* cart nav */
+.cart-nav{
+  border-top:1px solid rgba(255,255,255,0.05);
+  display:flex;gap:4px;padding:8px 10px;background:rgba(0,0,0,0.18);
+}
+.cnav{
+  flex:1;padding:7px 4px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);
+  background:rgba(255,255,255,0.03);color:#a0a0c0;
+  font-family:'Rajdhani',sans-serif;font-size:0.73rem;font-weight:600;
+  cursor:pointer;transition:all 0.2s;text-align:center;display:flex;
+  flex-direction:column;align-items:center;gap:2px;
+}
+.cnav .ni{font-size:0.95rem}
+.cnav:hover,.cnav.active{background:rgba(240,185,11,0.1);border-color:rgba(240,185,11,0.3);color:#f0b90b}
 
-        <!-- ---- PANEL: LOGIN ---- -->
-        <div id="panel-login" class="cart-panel">
-          <div class="cart-status-msg">
-            🔐 <strong>Login Now, Tool is waiting...</strong><br/>
-            <span style="font-size:0.8rem;color:#a0a0c0;">Please log in to dhaniwin0.com to activate the prediction engine.</span>
-          </div>
-          <a href="https://dhaniwin0.com/login?type=0" target="_blank" style="
-            display:block;
-            background:linear-gradient(135deg,#f0b90b,#c99a08);
-            color:#0a0a0f;
-            text-align:center;
-            padding:0.85rem;
-            border-radius:12px;
-            font-family:'Orbitron',monospace;
-            font-size:0.85rem;
-            font-weight:700;
-            letter-spacing:2px;
-            text-decoration:none;
-            margin-bottom:0.8rem;
-            transition:opacity 0.2s;
-          " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
-            LOGIN NOW →
-          </a>
-          <div style="font-size:0.75rem;color:#5a5a7a;text-align:center;">After login, click <strong style="color:#a0a0c0;">Home</strong> below</div>
-        </div>
+/* toast */
+.toast{
+  position:fixed;top:56px;right:16px;z-index:10000;
+  background:rgba(10,10,15,0.97);border:1px solid rgba(240,185,11,0.4);
+  border-radius:10px;padding:9px 14px;font-size:0.82rem;color:#f0b90b;
+  font-weight:500;max-width:260px;display:none;
+  box-shadow:0 8px 28px rgba(0,0,0,0.6);
+}
+.toast.show{display:block;animation:slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+</style>
 
-        <!-- ---- PANEL: HOME ---- -->
-        <div id="panel-home" class="cart-panel" style="display:none;">
-          <div class="cart-status-msg">
-            ✅ <strong>Login Done...</strong><br/>
-            <span style="font-size:0.8rem;color:#a0a0c0;">Now use the Wingo tool. Click <strong style="color:#f0b90b;">Wingo</strong> below to start predicting!</span>
-          </div>
-          <div class="session-stats">
-            <div class="session-stat-box">
-              <div class="session-stat-val" id="cart-wins">0</div>
-              <div class="session-stat-lbl">Wins</div>
-            </div>
-            <div class="session-stat-box">
-              <div class="session-stat-val" id="cart-rounds">0</div>
-              <div class="session-stat-lbl">Rounds</div>
-            </div>
-          </div>
-          <a href="https://dhaniwin0.com/WinGo/WinGo_1M" target="_blank" style="
-            display:block;
-            background:rgba(240,185,11,0.1);
-            border:1px solid rgba(240,185,11,0.3);
-            color:#f0b90b;
-            text-align:center;
-            padding:0.8rem;
-            border-radius:10px;
-            font-family:'Orbitron',monospace;
-            font-size:0.8rem;
-            font-weight:700;
-            text-decoration:none;
-            letter-spacing:2px;
-          ">OPEN WINGO →</a>
-        </div>
 
-        <!-- ---- PANEL: WINGO ---- -->
-        <div id="panel-wingo" class="cart-panel" style="display:none;">
-
-          <!-- Status message -->
-          <div class="cart-status-msg" id="wingo-status-msg">
-            🎮 <strong>Wingo 1 min open now.</strong><br/>
-            <span style="font-size:0.8rem;color:#a0a0c0;">Select last 10 trends (Bottom to top)</span>
-          </div>
-
-          <!-- Counter + Progress -->
-          <div class="trend-counter">
-            <span class="trend-counter-label">Trends Entered</span>
-            <span class="trend-counter-value"><span id="trend-count">0</span> <span>/ 10</span></span>
-          </div>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
-          </div>
-
-          <!-- Trend bubbles display -->
-          <div class="trend-bubbles" id="trend-bubbles"></div>
-
-          <!-- Input area -->
-          <div class="trend-input-area" id="trend-input-area">
-            <div class="trend-input-label">Select Trend Type</div>
-            <div class="trend-btn-group">
-              <button class="trend-btn big-btn" id="btn-big" onclick="addTrend('BIG')">⬆ BIG</button>
-              <button class="trend-btn small-btn" id="btn-small" onclick="addTrend('Small')">⬇ Small</button>
-            </div>
-            <div class="trend-number-row">
-              <select class="trend-number-select" id="trend-number-select">
-                <option value="">-- Trend No. --</option>
-                <option value="1">Trend 1</option>
-                <option value="2">Trend 2</option>
-                <option value="3">Trend 3</option>
-                <option value="4">Trend 4</option>
-                <option value="5">Trend 5</option>
-                <option value="6">Trend 6</option>
-                <option value="7">Trend 7</option>
-                <option value="8">Trend 8</option>
-                <option value="9">Trend 9</option>
-                <option value="10">Trend 10</option>
-              </select>
-              <button onclick="undoLastTrend()" title="Undo" style="
-                background:rgba(255,255,255,0.04);
-                border:1px solid rgba(255,255,255,0.08);
-                color:#a0a0c0;
-                border-radius:8px;
-                padding:0.5rem 0.7rem;
-                cursor:pointer;
-                font-size:1rem;
-                transition:all 0.2s;
-              " onmouseover="this.style.borderColor='rgba(255,23,68,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">↩</button>
-            </div>
-          </div>
-
-          <!-- Analyse button (visible after 10 trends) -->
-          <button class="btn-analyse" id="btn-analyse" onclick="startAnalysis()">
-            ⚡ ANALYSE NOW
-          </button>
-
-          <!-- Analysis loader -->
-          <div class="analysis-loader" id="analysis-loader">
-            <div class="loader-ring"></div>
-            <div class="loader-text">Running triple-algorithm analysis...</div>
-            <div class="algo-checks">
-              <div class="algo-check-item" id="algo1">
-                <span class="dot"></span> First_time_anylyse — scanning patterns
-              </div>
-              <div class="algo-check-item" id="algo2">
-                <span class="dot"></span> Second_time_anylyse — cross-validating
-              </div>
-              <div class="algo-check-item" id="algo3">
-                <span class="dot"></span> Third_time_anylyse — confirming result
-              </div>
-            </div>
-          </div>
-
-          <!-- Result Card -->
-          <div class="result-card" id="result-card">
-            <div class="result-label">NEXT PREDICTION</div>
-            <div class="result-prediction" id="result-prediction-text">BIG</div>
-            <div class="result-confidence">
-              <span>🎯</span>
-              <span id="result-confidence-text">98% Confidence</span>
-            </div>
-            <div class="result-question">Tell me, is it right?</div>
-            <div class="result-feedback-btns">
-              <button class="btn-yes" onclick="feedbackYes()">✓ YES</button>
-              <button class="btn-no" onclick="feedbackNo()">✗ NO</button>
-            </div>
-          </div>
-
-          <!-- Retry message -->
-          <div class="retry-msg" id="retry-msg">
-            🔄 <strong>Again enter trends, I give you 99% result, my promise.</strong><br/>
-            <span style="font-size:0.8rem;color:#a0a0c0;">Start from trend 1 again below ↓</span>
-          </div>
-
-        </div>
-        <!-- end panel-wingo -->
-
-      </div>
-      <!-- end cart-content -->
-
-      <!-- Cart Nav -->
-      <div class="cart-nav">
-        <button class="cart-nav-btn active" id="nav-login" onclick="showPanel('login')">
-          <span class="nav-icon">🔐</span> Login
-        </button>
-        <button class="cart-nav-btn" id="nav-home" onclick="showPanel('home')">
-          <span class="nav-icon">🏠</span> Home
-        </button>
-        <button class="cart-nav-btn" id="nav-wingo" onclick="showPanel('wingo')">
-          <span class="nav-icon">🎯</span> Wingo
-        </button>
-      </div>
-
-    </div>
-    <!-- end cart-body -->
+<!-- ══ TOP BAR ══ -->
+<div id="topbar">
+  <div class="logo">DHANI<span>WIN</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="goTo('login')" id="tab-login">🔐 Login</button>
+    <button class="nav-tab" onclick="goTo('home')" id="tab-home">🏠 Home</button>
+    <button class="nav-tab" onclick="goTo('wingo')" id="tab-wingo">🎯 Wingo</button>
   </div>
-  <!-- end dhani-cart -->
+  <div id="status-pill">
+    <div id="status-dot"></div>
+    <span id="status-text">Waiting...</span>
+  </div>
+</div>
+
+<!-- ══ DHANI WIN SITE in IFRAME ══ -->
+<iframe id="site-frame"
+  src="https://dhaniwin0.com/login?type=0"
+  allow="fullscreen"
+  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+></iframe>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ CART TOGGLE BUTTON ══ -->
+<button id="cart-btn" title="Open Prediction Tool" onclick="toggleCart()">🎯</button>
+
+<!-- ══ CART WIDGET ══ -->
+<div id="cart">
+  <div class="cart-box">
+
+    <!-- head / drag handle -->
+    <div class="cart-head" id="cart-head">
+      <span class="cart-head-title">DHANI WIN TOOL</span>
+      <span class="cart-badge">98% ACC</span>
+      <div class="cart-x" onclick="toggleCart()">✕</div>
+    </div>
+
+    <!-- scrollable content -->
+    <div class="cart-scroll" id="cart-scroll">
+
+      <!-- ─ LOGIN PANEL ─ -->
+      <div id="p-login">
+        <div class="smsg">🔐 <strong>Login Now, Tool is waiting...</strong></div>
+        <div style="font-size:0.78rem;color:#a0a0c0;margin-bottom:10px;line-height:1.5">
+          The Dhani Win website is loading. Please log in, then click <strong style="color:#f0b90b">Home</strong> below.
+        </div>
+        <button onclick="goTo('login')" style="
+          width:100%;padding:11px;background:linear-gradient(135deg,#f0b90b,#c99a08);
+          border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
+          font-size:0.78rem;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:6px;
+        ">GO TO LOGIN →</button>
+      </div>
+
+      <!-- ─ HOME PANEL ─ -->
+      <div id="p-home" style="display:none">
+        <div class="smsg">✅ <strong>Login Done... Now use Wingo tool.</strong></div>
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-v" id="hw">0</div><div class="stat-l">Wins</div></div>
+          <div class="stat-box"><div class="stat-v" id="hr">0</div><div class="stat-l">Rounds</div></div>
+        </div>
+        <button onclick="goTo('wingo')" style="
+          width:100%;padding:10px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.3);
+          border-radius:10px;color:#f0b90b;font-family:'Orbitron',monospace;
+          font-size:0.78rem;font-weight:700;letter-spacing:2px;cursor:pointer;
+        ">OPEN WINGO →</button>
+      </div>
+
+      <!-- ─ WINGO PANEL ─ -->
+      <div id="p-wingo" style="display:none">
+        <div class="smsg" id="wmsg">🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span></div>
+
+        <!-- counter -->
+        <div class="ctr-row">
+          <span class="ctr-lbl">Trends Entered</span>
+          <span class="ctr-val"><span id="tcnt">0</span><small> / 10</small></span>
+        </div>
+        <div class="pbar"><div class="pbar-fill" id="pfill" style="width:0%"></div></div>
+
+        <!-- bubbles -->
+        <div class="bubbles" id="bubbles"></div>
+
+        <!-- input area -->
+        <div id="tin">
+          <div class="tin-lbl">Select Trend Type</div>
+          <div class="tbtn-row">
+            <button class="tbtn big" onclick="addTrend('BIG')">⬆ BIG</button>
+            <button class="tbtn sml" onclick="addTrend('Small')">⬇ Small</button>
+          </div>
+          <div class="sel-row">
+            <select class="tsel" id="tsel">
+              <option value="">-- Trend No. --</option>
+              <option value="1">Trend 1</option><option value="2">Trend 2</option>
+              <option value="3">Trend 3</option><option value="4">Trend 4</option>
+              <option value="5">Trend 5</option><option value="6">Trend 6</option>
+              <option value="7">Trend 7</option><option value="8">Trend 8</option>
+              <option value="9">Trend 9</option><option value="10">Trend 10</option>
+            </select>
+            <button class="undo-btn" onclick="undoTrend()" title="Undo last">↩</button>
+          </div>
+        </div>
+
+        <!-- analyse -->
+        <button class="btn-analyse" id="banalyse" onclick="startAnalysis()">⚡ ANALYSE NOW</button>
+
+        <!-- loader -->
+        <div class="loader" id="ldr">
+          <div class="ring"></div>
+          <div class="loader-txt">Running triple analysis...</div>
+          <div class="algo-list">
+            <div class="ach" id="a1"><span class="dot"></span> First — pattern scan</div>
+            <div class="ach" id="a2"><span class="dot"></span> Second — momentum check</div>
+            <div class="ach" id="a3"><span class="dot"></span> Third — entropy confirm</div>
+          </div>
+        </div>
+
+        <!-- result -->
+        <div class="result" id="res">
+          <div class="res-lbl">NEXT PREDICTION</div>
+          <div class="res-pred" id="rpred">BIG</div>
+          <div class="res-conf">🎯 <span id="rconf">98% Confidence</span></div>
+          <div class="res-q">Tell me, is it right?</div>
+          <div class="fb-row">
+            <button class="btn-yes" onclick="fbYes()">✓ YES</button>
+            <button class="btn-no" onclick="fbNo()">✗ NO</button>
+          </div>
+        </div>
+
+        <!-- retry -->
+        <div class="retry" id="rtry">🔄 <strong>Again enter trends, I give you 99% result, my promise.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Start from trend 1 again ↓</span></div>
+      </div>
+      <!-- end wingo panel -->
+
+    </div><!-- end scroll -->
+
+    <!-- cart nav -->
+    <div class="cart-nav">
+      <button class="cnav active" id="cn-login" onclick="showPanel('login')"><span class="ni">🔐</span>Login</button>
+      <button class="cnav" id="cn-home" onclick="showPanel('home')"><span class="ni">🏠</span>Home</button>
+      <button class="cnav" id="cn-wingo" onclick="showPanel('wingo')"><span class="ni">🎯</span>Wingo</button>
+    </div>
+
+  </div><!-- end cart-box -->
+</div><!-- end cart -->
 
 
-  <!-- ===================== JAVASCRIPT ===================== -->
-  <script>
-  // =========================================================
-  //  DHANI WIN — Cart Controller
-  // =========================================================
+<script>
+// ═══════════════════════════════════════════
+//  DHANI WIN — Tool Controller
+// ═══════════════════════════════════════════
 
-  const URLS = {
-    login:  'https://dhaniwin0.com/login?type=0',
-    home:   'https://dhaniwin0.com/',
-    wingo:  'https://dhaniwin0.com/WinGo/WinGo_1M'
-  };
+const SITE_URLS = {
+  login: 'https://dhaniwin0.com/login?type=0',
+  home:  'https://dhaniwin0.com/',
+  wingo: 'https://dhaniwin0.com/WinGo/WinGo_1M'
+};
 
-  // ---- State ----
-  let trends = [];
-  let sessionWins = 0;
-  let sessionRounds = 0;
-  let isRetryMode = false;
-  let currentPanel = 'login';
+let trends = [], wins = 0, rounds = 0, retryMode = false;
+const frame    = document.getElementById('site-frame');
+const cartEl   = document.getElementById('cart');
+const toastEl  = document.getElementById('toast');
 
-  // ---- DOM ----
-  const cartBody       = document.getElementById('cart-body');
-  const cartToggleBtn  = document.getElementById('cart-toggle-btn');
-  const cartCloseBtn   = document.getElementById('cart-close-btn');
-  const trendCountEl   = document.getElementById('trend-count');
-  const progressFill   = document.getElementById('progress-fill');
-  const trendBubbles   = document.getElementById('trend-bubbles');
-  const btnAnalyse     = document.getElementById('btn-analyse');
-  const analysisLoader = document.getElementById('analysis-loader');
-  const resultCard     = document.getElementById('result-card');
-  const retryMsg       = document.getElementById('retry-msg');
-  const toastEl        = document.getElementById('dhani-toast');
-  const trendInputArea = document.getElementById('trend-input-area');
-
-  // ---- Toggle Cart ----
-  cartToggleBtn.addEventListener('click', () => {
-    const isOpen = cartBody.classList.contains('open');
-    cartBody.classList.toggle('open', !isOpen);
-    cartToggleBtn.style.display = isOpen ? 'flex' : 'none';
+// ── iframe navigation ────────────────────────
+function goTo(page) {
+  frame.src = SITE_URLS[page];
+  showPanel(page);
+  ['login','home','wingo'].forEach(p => {
+    document.getElementById('tab-'+p).classList.toggle('active', p === page);
   });
+  const labels = {login:'Waiting for Login', home:'Login Done ✓', wingo:'Wingo Active 🎯'};
+  document.getElementById('status-text').textContent = labels[page] || '';
+  document.getElementById('status-dot').style.background = page==='wingo' ? '#f0b90b' : '#00e676';
+}
 
-  cartCloseBtn.addEventListener('click', () => {
-    cartBody.classList.remove('open');
-    cartToggleBtn.style.display = 'flex';
+// ── cart open/close ──────────────────────────
+function toggleCart() {
+  const open = cartEl.classList.toggle('open');
+  document.getElementById('cart-btn').textContent = open ? '✕' : '🎯';
+}
+
+// ── panel switch ─────────────────────────────
+function showPanel(name) {
+  ['login','home','wingo'].forEach(p => {
+    document.getElementById('p-'+p).style.display   = p===name ? 'block' : 'none';
+    document.getElementById('cn-'+p).classList.toggle('active', p===name);
   });
+}
 
-  // ---- Show Panel ----
-  function showPanel(name) {
-    ['login','home','wingo'].forEach(p => {
-      document.getElementById('panel-' + p).style.display = (p === name) ? 'block' : 'none';
-      document.getElementById('nav-' + p).classList.toggle('active', p === name);
-    });
-    currentPanel = name;
-    updateHeaderStatus(name);
+// ── add trend ────────────────────────────────
+function addTrend(type) {
+  if (trends.length >= 10) return;
+  const n = document.getElementById('tsel').value || (trends.length+1);
+  trends.push({type, number:n});
+  document.getElementById('tsel').value = '';
+
+  // counter + bar
+  document.getElementById('tcnt').textContent = trends.length;
+  document.getElementById('pfill').style.width = (trends.length*10)+'%';
+
+  // bubble
+  const b = document.createElement('span');
+  b.className = 'bub '+(type==='BIG'?'big':'sml');
+  b.textContent = type==='BIG' ? '⬆ BIG' : '⬇ Sm';
+  document.getElementById('bubbles').appendChild(b);
+
+  // hide retry/result on new entry
+  document.getElementById('rtry').classList.remove('show');
+  document.getElementById('res').classList.remove('show');
+
+  if (trends.length === 10) {
+    document.getElementById('banalyse').classList.add('show');
+    document.getElementById('tin').style.opacity = '0.35';
+    document.getElementById('tin').style.pointerEvents = 'none';
+    document.getElementById('wmsg').innerHTML = '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
+    toast('10 trends ready! Hit Analyse Now ⚡');
   }
+}
 
-  function updateHeaderStatus(panel) {
-    const el = document.getElementById('header-status-text');
-    if (panel === 'login')  el.textContent = 'Waiting for Login';
-    if (panel === 'home')   el.textContent = 'Login Done — Ready';
-    if (panel === 'wingo')  el.textContent = 'Wingo Active';
+// ── undo ─────────────────────────────────────
+function undoTrend() {
+  if (!trends.length) return;
+  trends.pop();
+  const bs = document.getElementById('bubbles').querySelectorAll('.bub');
+  if (bs.length) bs[bs.length-1].remove();
+  document.getElementById('tcnt').textContent = trends.length;
+  document.getElementById('pfill').style.width = (trends.length*10)+'%';
+  document.getElementById('banalyse').classList.remove('show');
+  document.getElementById('tin').style.opacity = '1';
+  document.getElementById('tin').style.pointerEvents = 'auto';
+  document.getElementById('wmsg').innerHTML = '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>';
+}
+
+// ── start analysis ───────────────────────────
+function startAnalysis() {
+  document.getElementById('banalyse').classList.remove('show');
+  document.getElementById('res').classList.remove('show');
+  document.getElementById('ldr').classList.add('on');
+
+  setTimeout(()=>document.getElementById('a1').classList.add('ok'), 700);
+  setTimeout(()=>document.getElementById('a2').classList.add('ok'), 1500);
+  setTimeout(()=>document.getElementById('a3').classList.add('ok'), 2300);
+
+  fetch('Master-prediction-tool.php', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({trends, retry: retryMode})
+  })
+  .then(r=>r.json())
+  .then(d => setTimeout(()=>showResult(d), 2700))
+  .catch(()  => setTimeout(()=>showResult(localPredict()), 2700));
+}
+
+// ── local fallback ───────────────────────────
+function localPredict() {
+  const types = trends.map(t=>t.type);
+  const big = types.filter(t=>t==='BIG').length;
+  const last3 = types.slice(-3);
+  const allSame = last3.every(t=>t===last3[0]);
+  const pred = allSame ? (last3[0]==='BIG'?'Small':'BIG') : (big>=5?'BIG':'Small');
+  return {prediction:pred, confidence: retryMode?99:(92+Math.floor(Math.random()*6))};
+}
+
+// ── show result ──────────────────────────────
+function showResult(data) {
+  document.getElementById('ldr').classList.remove('on');
+  ['a1','a2','a3'].forEach(id=>document.getElementById(id).classList.remove('ok'));
+
+  const pred = data.prediction||'BIG';
+  const conf = data.confidence||98;
+  const el   = document.getElementById('rpred');
+  el.textContent = pred;
+  el.className   = 'res-pred '+(pred==='BIG'?'big':'sml');
+  document.getElementById('rconf').textContent = conf+'% Confidence';
+  document.getElementById('res').classList.add('show');
+  toast('🎯 Prediction: '+pred+' ('+conf+'%)');
+  rounds++;
+  updateStats();
+}
+
+// ── feedback ─────────────────────────────────
+function fbYes() {
+  wins++; retryMode=false; updateStats();
+  toast('🎉 Win recorded! Starting fresh...');
+  resetWingo(true);
+}
+function fbNo() {
+  retryMode=true;
+  document.getElementById('res').classList.remove('show');
+  document.getElementById('rtry').classList.add('show');
+  resetWingo(false);
+  toast('🔄 Retry mode ON — 99% next!');
+}
+
+// ── reset wingo ──────────────────────────────
+function resetWingo(full) {
+  trends=[];
+  document.getElementById('tcnt').textContent='0';
+  document.getElementById('pfill').style.width='0%';
+  document.getElementById('bubbles').innerHTML='';
+  document.getElementById('banalyse').classList.remove('show');
+  document.getElementById('tin').style.opacity='1';
+  document.getElementById('tin').style.pointerEvents='auto';
+  document.getElementById('tsel').value='';
+  if (full) {
+    document.getElementById('res').classList.remove('show');
+    document.getElementById('rtry').classList.remove('show');
+    document.getElementById('wmsg').innerHTML='🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>';
   }
+}
 
-  // ---- Add Trend ----
-  function addTrend(type) {
-    if (trends.length >= 10) return;
+// ── stats ─────────────────────────────────────
+function updateStats() {
+  document.getElementById('hw').textContent=wins;
+  document.getElementById('hr').textContent=rounds;
+}
 
-    const selectEl = document.getElementById('trend-number-select');
-    const trendNo  = selectEl.value || (trends.length + 1);
+// ── toast ─────────────────────────────────────
+let toastT;
+function toast(msg) {
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>toastEl.classList.remove('show'),3200);
+}
 
-    trends.push({ type, number: trendNo });
-
-    // Update counter
-    trendCountEl.textContent = trends.length;
-    progressFill.style.width = (trends.length * 10) + '%';
-
-    // Add bubble
-    const bubble = document.createElement('span');
-    bubble.className = 'trend-bubble ' + (type === 'BIG' ? 'big' : 'small');
-    bubble.textContent = type === 'BIG' ? '⬆ BIG' : '⬇ Sm';
-    trendBubbles.appendChild(bubble);
-
-    // Reset select
-    selectEl.value = '';
-
-    // Show analyse btn after 10
-    if (trends.length === 10) {
-      btnAnalyse.classList.add('visible');
-      trendInputArea.style.opacity = '0.4';
-      trendInputArea.style.pointerEvents = 'none';
-      document.getElementById('wingo-status-msg').innerHTML =
-        '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.8rem;color:#a0a0c0;">Click Analyse Now to get your prediction.</span>';
-      showToast('10 trends ready! Hit Analyse Now ⚡');
-    }
-
-    // Hide retry msg when re-entering
-    retryMsg.classList.remove('show');
-    resultCard.classList.remove('show');
+// ═══════════════════════════════════════════
+//  DRAG — cart widget
+// ═══════════════════════════════════════════
+(()=>{
+  const c=document.getElementById('cart'), h=document.getElementById('cart-head');
+  let drag=false, sx,sy,ox,oy;
+  h.addEventListener('mousedown', e=>{
+    drag=true; sx=e.clientX; sy=e.clientY;
+    const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
+    c.style.transition='none';
+    document.addEventListener('mousemove',mv);
+    document.addEventListener('mouseup',up);
+  });
+  h.addEventListener('touchstart', e=>{
+    drag=true; const t=e.touches[0]; sx=t.clientX; sy=t.clientY;
+    const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
+    document.addEventListener('touchmove',mv,{passive:false});
+    document.addEventListener('touchend',up);
+  },{passive:true});
+  function mv(e){
+    if(!drag)return; if(e.cancelable)e.preventDefault();
+    const t=e.touches?e.touches[0]:e;
+    let nx=ox+(t.clientX-sx), ny=oy+(t.clientY-sy);
+    nx=Math.max(0,Math.min(nx,window.innerWidth-c.offsetWidth));
+    ny=Math.max(0,Math.min(ny,window.innerHeight-c.offsetHeight));
+    c.style.left=nx+'px'; c.style.top=ny+'px';
+    c.style.bottom='auto'; c.style.right='auto';
   }
-
-  // ---- Undo Last Trend ----
-  function undoLastTrend() {
-    if (trends.length === 0) return;
-    trends.pop();
-    const bubbles = trendBubbles.querySelectorAll('.trend-bubble');
-    if (bubbles.length > 0) bubbles[bubbles.length - 1].remove();
-    trendCountEl.textContent = trends.length;
-    progressFill.style.width = (trends.length * 10) + '%';
-    btnAnalyse.classList.remove('visible');
-    trendInputArea.style.opacity = '1';
-    trendInputArea.style.pointerEvents = 'auto';
-    document.getElementById('wingo-status-msg').innerHTML =
-      '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.8rem;color:#a0a0c0;">Select last 10 trends (Bottom to top)</span>';
+  function up(){
+    drag=false;
+    document.removeEventListener('mousemove',mv);
+    document.removeEventListener('mouseup',up);
+    document.removeEventListener('touchmove',mv);
+    document.removeEventListener('touchend',up);
   }
+})();
 
-  // ---- Start Analysis ----
-  function startAnalysis() {
-    if (trends.length < 10) return;
-    btnAnalyse.classList.remove('visible');
-    resultCard.classList.remove('show');
-    analysisLoader.classList.add('active');
-
-    // Animate algo checks
-    setTimeout(() => document.getElementById('algo1').classList.add('done'), 800);
-    setTimeout(() => document.getElementById('algo2').classList.add('done'), 1600);
-    setTimeout(() => document.getElementById('algo3').classList.add('done'), 2400);
-
-    // Call backend
-    const payload = { trends, retry: isRetryMode };
-
-    fetch('Master-prediction-tool.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(data => {
-      setTimeout(() => showResult(data), 2800);
-    })
-    .catch(() => {
-      // Fallback local prediction if backend unreachable
-      setTimeout(() => {
-        const localResult = localPredict(trends);
-        showResult(localResult);
-      }, 2800);
-    });
-  }
-
-  // ---- Local Fallback Prediction ----
-  function localPredict(trendArr) {
-    const bigCount   = trendArr.filter(t => t.type === 'BIG').length;
-    const smallCount = trendArr.filter(t => t.type === 'Small').length;
-    const recent3    = trendArr.slice(-3).map(t => t.type);
-    const allSame    = recent3.every(t => t === recent3[0]);
-
-    let prediction;
-    if (allSame) {
-      // Reversal likely after 3 same
-      prediction = recent3[0] === 'BIG' ? 'Small' : 'BIG';
-    } else {
-      // Follow majority with slight twist
-      prediction = bigCount >= smallCount ? 'BIG' : 'Small';
-    }
-
-    const confidence = isRetryMode ? 99 : (92 + Math.floor(Math.random() * 7));
-    return { prediction, confidence, agreed: true };
-  }
-
-  // ---- Show Result ----
-  function showResult(data) {
-    analysisLoader.classList.remove('active');
-    // Reset algo dots for next use
-    ['algo1','algo2','algo3'].forEach(id => document.getElementById(id).classList.remove('done'));
-
-    const pred = data.prediction || 'BIG';
-    const conf = data.confidence || 98;
-
-    const predEl = document.getElementById('result-prediction-text');
-    const confEl = document.getElementById('result-confidence-text');
-
-    predEl.textContent = pred;
-    predEl.className   = 'result-prediction ' + (pred === 'BIG' ? 'big' : 'small');
-    confEl.textContent = conf + '% Confidence';
-
-    resultCard.classList.add('show');
-    showToast('Prediction ready: ' + pred + ' (' + conf + '%) 🎯');
-
-    sessionRounds++;
-    updateSessionStats();
-  }
-
-  // ---- Feedback: Yes ----
-  function feedbackYes() {
-    sessionWins++;
-    isRetryMode = false;
-    updateSessionStats();
-    showToast('🎉 Great! Win recorded! Starting fresh...');
-    resetWingo(true);
-  }
-
-  // ---- Feedback: No ----
-  function feedbackNo() {
-    isRetryMode = true;
-    resultCard.classList.remove('show');
-    retryMsg.classList.add('show');
-    resetWingo(false);
-    showToast('🔄 Retry mode ON — 99% accuracy activated!');
-  }
-
-  // ---- Reset Wingo Panel ----
-  function resetWingo(fullReset) {
-    trends = [];
-    trendCountEl.textContent = '0';
-    progressFill.style.width = '0%';
-    trendBubbles.innerHTML = '';
-    btnAnalyse.classList.remove('visible');
-    trendInputArea.style.opacity = '1';
-    trendInputArea.style.pointerEvents = 'auto';
-    document.getElementById('trend-number-select').value = '';
-    if (fullReset) {
-      resultCard.classList.remove('show');
-      retryMsg.classList.remove('show');
-      document.getElementById('wingo-status-msg').innerHTML =
-        '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.8rem;color:#a0a0c0;">Select last 10 trends (Bottom to top)</span>';
-    }
-  }
-
-  // ---- Session Stats ----
-  function updateSessionStats() {
-    document.getElementById('stat-wins').textContent   = sessionWins;
-    document.getElementById('stat-rounds').textContent = sessionRounds;
-    document.getElementById('cart-wins').textContent   = sessionWins;
-    document.getElementById('cart-rounds').textContent = sessionRounds;
-  }
-
-  // ---- Toast ----
-  let toastTimer;
-  function showToast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3500);
-  }
-
-  // =========================================================
-  //  DRAG LOGIC — Make cart draggable
-  // =========================================================
-  (function initDrag() {
-    const cart   = document.getElementById('dhani-cart');
-    const handle = document.getElementById('cart-drag-handle');
-    let isDragging = false, startX, startY, origX, origY;
-
-    handle.addEventListener('mousedown', dragStart);
-    handle.addEventListener('touchstart', dragStart, { passive: true });
-
-    function dragStart(e) {
-      isDragging = true;
-      const touch  = e.touches ? e.touches[0] : e;
-      startX = touch.clientX;
-      startY = touch.clientY;
-      const rect = cart.getBoundingClientRect();
-      origX = rect.left;
-      origY = rect.top;
-      cart.style.transition = 'none';
-      document.addEventListener('mousemove', dragMove);
-      document.addEventListener('mouseup',   dragEnd);
-      document.addEventListener('touchmove', dragMove, { passive: false });
-      document.addEventListener('touchend',  dragEnd);
-    }
-
-    function dragMove(e) {
-      if (!isDragging) return;
-      if (e.cancelable) e.preventDefault();
-      const touch = e.touches ? e.touches[0] : e;
-      const dx = touch.clientX - startX;
-      const dy = touch.clientY - startY;
-      let newX = origX + dx;
-      let newY = origY + dy;
-      // Clamp within viewport
-      const w = cart.offsetWidth, h = cart.offsetHeight;
-      newX = Math.max(0, Math.min(newX, window.innerWidth  - w));
-      newY = Math.max(0, Math.min(newY, window.innerHeight - h));
-      cart.style.left   = newX + 'px';
-      cart.style.top    = newY + 'px';
-      cart.style.bottom = 'auto';
-      cart.style.right  = 'auto';
-    }
-
-    function dragEnd() {
-      isDragging = false;
-      document.removeEventListener('mousemove', dragMove);
-      document.removeEventListener('mouseup',   dragEnd);
-      document.removeEventListener('touchmove', dragMove);
-      document.removeEventListener('touchend',  dragEnd);
-    }
-  })();
-
-  // =========================================================
-  //  URL DETECTION — Auto switch panel based on current URL
-  // =========================================================
-  (function detectPage() {
-    const href = window.location.href;
-    if (href.includes('login')) {
-      showPanel('login');
-    } else if (href.includes('WinGo') || href.includes('wingo')) {
-      showPanel('wingo');
-    } else if (href.includes('dhaniwin0.com')) {
-      showPanel('home');
-    } else {
-      showPanel('login');
-    }
-  })();
-
-  // Init
-  showPanel('login');
-  </script>
-
+// init
+showPanel('login');
+</script>
 </body>
 </html>
