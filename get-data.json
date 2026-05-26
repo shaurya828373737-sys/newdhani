@@ -1,0 +1,41 @@
+{
+  "app": "DHANI WIN",
+  "version": "1.0.0",
+  "accuracy_target": 98,
+  "retry_accuracy": 99,
+  "trend_window": 10,
+  "session": {
+    "id": null,
+    "started_at": null,
+    "wins": 0,
+    "rounds": 0,
+    "retry_mode": false
+  },
+  "trends": [],
+  "last_prediction": null,
+  "history": [],
+  "pattern_weights": {
+    "reversal_after_3": 0.72,
+    "continuation_after_2": 0.55,
+    "zigzag_pattern": 0.68,
+    "dominant_trend": 0.61,
+    "alternating_pair": 0.65,
+    "triple_break": 0.78,
+    "fibonacci_sequence": 0.70,
+    "momentum_shift": 0.74
+  },
+  "algorithm_votes": {
+    "first":  null,
+    "second": null,
+    "third":  null
+  },
+  "result_log": [],
+  "meta": {
+    "game": "WinGo 1M",
+    "url_login": "https://dhaniwin0.com/login?type=0",
+    "url_home":  "https://dhaniwin0.com/",
+    "url_wingo": "https://dhaniwin0.com/WinGo/WinGo_1M",
+    "created": "2025-01-01",
+    "author": "DHANI WIN Engine"
+  }
+}
