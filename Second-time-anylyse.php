@@ -3,67 +3,52 @@
  * Second-time-anylyse.php — DHANI WIN
  * Algorithm #2: Recency-Weighted Score
  *
- * ONE clear rule:
- * - Weight each trend by position (most recent = highest weight)
- * - Whichever side scores higher = prediction
- * - Additional: check last 5 trends window separately for recent momentum
+ * Weights each trend by position (newest = highest weight).
+ * Score is REAL — the ratio of weighted votes, scaled to 50–85.
+ * NO fake numbers.
  */
 
-function secondTimeAnalyse(array $trends, bool $retryMode = false): array {
+function secondTimeAnalyse(array $trends): array {
 
     $types = array_column($trends, 'type');
     $n     = count($types);
 
-    if ($n < 2) {
-        return ['prediction' => 'BIG', 'confidence' => 80, 'algorithm' => 'second'];
+    if ($n < 1) {
+        return ['prediction' => 'BIG', 'score' => 50, 'algorithm' => 'second', 'reason' => 'No data'];
     }
 
-    // ── Step 1: Full recency-weighted scoring ────────────────────
-    // Position weight: trend[0]=1pt, trend[1]=2pt ... trend[9]=10pt
-    $scoreBIG   = 0.0;
-    $scoreSmall = 0.0;
+    // Position weight: index 0 = weight 1, index 9 = weight 10
+    $wBig = 0.0;
+    $wSml = 0.0;
+    $totalWeight = 0.0;
 
     for ($i = 0; $i < $n; $i++) {
-        $weight = $i + 1; // 1-based, most recent = highest
-        if ($types[$i] === 'BIG') $scoreBIG   += $weight;
-        else                       $scoreSmall += $weight;
+        $w = $i + 1;
+        $totalWeight += $w;
+        if ($types[$i] === 'BIG') $wBig += $w;
+        else                       $wSml += $w;
     }
 
-    $totalScore  = $scoreBIG + $scoreSmall;
-    $prediction  = ($scoreBIG >= $scoreSmall) ? 'BIG' : 'Small';
-    $winScore    = max($scoreBIG, $scoreSmall);
-    $dominance   = $totalScore > 0 ? ($winScore / $totalScore) : 0.5;
+    $prediction = ($wBig >= $wSml) ? 'BIG' : 'Small';
+    $winWeight  = max($wBig, $wSml);
 
-    // ── Step 2: Last 5 window — recent momentum check ───────────
-    $last5     = array_slice($types, -5);
-    $last5Big  = count(array_filter($last5, fn($t) => $t === 'BIG'));
-    $last5Sml  = 5 - $last5Big;
-    $recentWin = ($last5Big >= $last5Sml) ? 'BIG' : 'Small';
+    // dominance: 0.5 = tie, 1.0 = all on one side
+    $dominance = $totalWeight > 0 ? ($winWeight / $totalWeight) : 0.5;
 
-    // ── Step 3: Combine full score + recent momentum ─────────────
-    // If both agree → high confidence
-    // If they disagree → trust recent window (last 5) override
-    if ($recentWin !== $prediction) {
-        // Recent momentum overrides full score
-        $prediction = $recentWin;
-        $dominance  = max($dominance - 0.08, 0.50); // slight confidence penalty
-        $reason     = "Recent momentum override (last5={$recentWin})";
-    } else {
-        $reason = "Full score + recent agree ({$prediction})";
-    }
+    // Map dominance (0.5 → 1.0) to score (50 → 85)
+    $score = (int) round(50 + ($dominance - 0.5) * 70);
+    $score = min(max($score, 50), 85);
 
-    // ── Step 4: Map dominance to confidence ──────────────────────
-    // dominance range: 0.5 (50/50) → 1.0 (all same side)
-    // map to confidence: 82 → 97
-    $confidence = (int) round(82 + ($dominance - 0.5) * 30);
-    $confidence = min($confidence, $retryMode ? 99 : 97);
-    $confidence = max($confidence, 82);
+    $reason = sprintf(
+        "Weighted: BIG=%.1f Small=%.1f → %s (dominance=%.2f)",
+        $wBig, $wSml, $prediction, $dominance
+    );
 
     return [
         'prediction' => $prediction,
-        'confidence' => $confidence,
-        'score_big'  => round($scoreBIG, 1),
-        'score_sml'  => round($scoreSmall, 1),
+        'score'      => $score,
+        'w_big'      => round($wBig, 1),
+        'w_sml'      => round($wSml, 1),
         'dominance'  => round($dominance, 3),
         'reason'     => $reason,
         'algorithm'  => 'second',
@@ -74,5 +59,5 @@ function secondTimeAnalyse(array $trends, bool $retryMode = false): array {
 if (php_sapi_name() !== 'cli' && basename(__FILE__) === basename($_SERVER['PHP_SELF'])) {
     header('Content-Type: application/json');
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
-    echo json_encode(secondTimeAnalyse($input['trends'] ?? [], $input['retry'] ?? false));
+    echo json_encode(secondTimeAnalyse($input['trends'] ?? []));
 }

@@ -1,17 +1,13 @@
 <?php
 /**
  * Master-prediction-tool.php — DHANI WIN
- * ==========================================
- * Main entry point. Called by the frontend cart via POST.
+ * Main entry point called by the cart via POST.
  *
- * Pipeline (simple & clean):
- *   1. Parse + validate input
- *   2. Edge correction check (all-same, last-5-same)
- *   3. Run Calculation (3 algorithms → majority vote)
- *   4. Apply edge override if needed
- *   5. Return JSON to cart
- *
- * No Python dependency. No file writes needed for basic operation.
+ * Steps:
+ *   1. Validate input
+ *   2. Run 3-algorithm calculation
+ *   3. Apply edge-case override (all-10-same / last-5-same)
+ *   4. Return honest JSON — confidence is real, not fake
  */
 
 require_once __DIR__ . '/Help-to-take-accurate.php';
@@ -22,56 +18,37 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST')    { echo json_encode(['error' => 'POST required']); exit; }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['error' => 'POST required']);
-    exit;
-}
+$input = json_decode(file_get_contents('php://input'), true);
+if (!is_array($input)) { echo json_encode(['error' => 'Invalid JSON']); exit; }
 
-// ── 1. Parse input ───────────────────────────────────────────────
-$raw   = file_get_contents('php://input');
-$input = json_decode($raw, true);
-
-if (json_last_error() !== JSON_ERROR_NONE || !is_array($input)) {
-    echo json_encode(['error' => 'Invalid JSON']);
-    exit;
-}
-
-$retryMode = (bool)($input['retry'] ?? false);
 $rawTrends = $input['trends'] ?? [];
 
-// ── 2. Validate ──────────────────────────────────────────────────
+// 1. Validate
 $validation = validateTrends($rawTrends);
-
 if (!$validation['valid']) {
-    echo json_encode([
-        'status' => 'error',
-        'errors' => $validation['errors'],
-    ]);
+    echo json_encode(['status' => 'error', 'errors' => $validation['errors']]);
     exit;
 }
-
 $trends = $validation['cleaned'];
 
-// ── 3. Run 3-algorithm calculation ──────────────────────────────
-$result = runCalculation($trends, $retryMode);
+// 2. Calculate
+$result = runCalculation($trends);
 
-// ── 4. Apply edge correction ─────────────────────────────────────
+// 3. Edge override
 $result = applyEdgeCorrection($result, $trends);
 
-// ── 5. Return final result to cart ──────────────────────────────
+// 4. Respond — confidence is whatever the math produced, no fake inflation
 echo json_encode([
     'status'     => 'ok',
     'prediction' => $result['prediction'],
     'confidence' => $result['confidence'],
     'agreed'     => $result['agreed'],
     'votes'      => $result['votes'],
-    'retry_mode' => $retryMode,
-    'timestamp'  => date('Y-m-d H:i:s'),
-    'detail'     => $result['algorithm_results'],
+    'note'       => $result['note']           ?? '',
     'edge'       => $result['edge_correction'] ?? null,
+    'detail'     => $result['algorithm_results'],
+    'timestamp'  => $result['timestamp'],
 ]);

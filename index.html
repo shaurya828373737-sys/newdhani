@@ -290,7 +290,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
     <!-- head / drag handle -->
     <div class="cart-head" id="cart-head">
       <span class="cart-head-title">DHANI WIN TOOL</span>
-      <span class="cart-badge">98% ACC</span>
+      <span class="cart-badge">PREDICTION TOOL</span>
       <div class="cart-x" onclick="toggleCart()">✕</div>
     </div>
 
@@ -376,7 +376,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
         <div class="result" id="res">
           <div class="res-lbl">NEXT PREDICTION</div>
           <div class="res-pred" id="rpred">BIG</div>
-          <div class="res-conf">🎯 <span id="rconf">98% Confidence</span></div>
+          <div class="res-conf">🎯 <span id="rconf">Analysing...</span></div>
           <div class="res-q">Tell me, is it right?</div>
           <div class="fb-row">
             <button class="btn-yes" onclick="fbYes()">✓ YES</button>
@@ -385,7 +385,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
         </div>
 
         <!-- retry -->
-        <div class="retry" id="rtry">🔄 <strong>Again enter trends, I give you 99% result, my promise.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Start from trend 1 again ↓</span></div>
+        <div class="retry" id="rtry">🔄 <strong>Enter trends again — deeper analysis will run.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Start from trend 1 again ↓</span></div>
       </div>
       <!-- end wingo panel -->
 
@@ -509,12 +509,36 @@ function startAnalysis() {
 
 // ── local fallback ───────────────────────────
 function localPredict() {
-  const types = trends.map(t=>t.type);
-  const big = types.filter(t=>t==='BIG').length;
-  const last3 = types.slice(-3);
-  const allSame = last3.every(t=>t===last3[0]);
-  const pred = allSame ? (last3[0]==='BIG'?'Small':'BIG') : (big>=5?'BIG':'Small');
-  return {prediction:pred, confidence: retryMode?99:(92+Math.floor(Math.random()*6))};
+  // Pure local fallback — real logic, no fake confidence
+  const types = trends.map(t => t.type);
+  const n     = types.length;
+
+  // Streak from end
+  const last   = types[n - 1];
+  let streak   = 0;
+  for (let i = n - 1; i >= 0; i--) { if (types[i] === last) streak++; else break; }
+  const opp    = last === 'BIG' ? 'Small' : 'BIG';
+
+  // Weighted score (same as algo2)
+  let wBig = 0, wSml = 0;
+  types.forEach((t, i) => { const w = i + 1; t === 'BIG' ? wBig += w : wSml += w; });
+  const totalW   = wBig + wSml;
+  const dom      = totalW > 0 ? Math.max(wBig, wSml) / totalW : 0.5;
+  const baseConf = Math.round(50 + (dom - 0.5) * 70);
+
+  let pred, conf;
+  if (streak >= 3) {
+    pred = opp;
+    conf = Math.min(60 + streak * 5, 82);
+  } else if (streak === 2) {
+    pred = opp;
+    conf = 60;
+  } else {
+    pred = wBig >= wSml ? 'BIG' : 'Small';
+    conf = baseConf;
+  }
+
+  return { prediction: pred, confidence: Math.min(conf, 85) };
 }
 
 // ── show result ──────────────────────────────
@@ -545,7 +569,7 @@ function fbNo() {
   document.getElementById('res').classList.remove('show');
   document.getElementById('rtry').classList.add('show');
   resetWingo(false);
-  toast('🔄 Retry mode ON — 99% next!');
+  toast('🔄 Retry — re-enter trends for deeper analysis');
 }
 
 // ── reset wingo ──────────────────────────────
