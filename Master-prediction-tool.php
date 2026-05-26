@@ -1,13 +1,12 @@
 <?php
 /**
  * Master-prediction-tool.php — DHANI WIN
- * Main entry point called by the cart via POST.
+ * 3-Level Win System entry point.
  *
- * Steps:
- *   1. Validate input
- *   2. Run 3-algorithm calculation
- *   3. Apply edge-case override (all-10-same / last-5-same)
- *   4. Return honest JSON — confidence is real, not fake
+ * Request body:
+ *   trends      — array of 10 trend objects
+ *   level       — 1 (normal), 2 (1st loss retry), 3 (2nd loss master)
+ *   prev_wrong  — array of previous wrong prediction strings e.g. ["BIG","BIG"]
  */
 
 require_once __DIR__ . '/Help-to-take-accurate.php';
@@ -24,9 +23,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST')    { echo json_encode(['error' => 'PO
 $input = json_decode(file_get_contents('php://input'), true);
 if (!is_array($input)) { echo json_encode(['error' => 'Invalid JSON']); exit; }
 
-$rawTrends = $input['trends'] ?? [];
+// ── Read inputs ───────────────────────────────────────────────────
+$rawTrends   = $input['trends']     ?? [];
+$level       = max(1, min(3, (int)($input['level'] ?? 1)));
+$prevWrong   = $input['prev_wrong'] ?? [];   // e.g. ["BIG","BIG"]
 
-// 1. Validate
+// ── Validate ─────────────────────────────────────────────────────
 $validation = validateTrends($rawTrends);
 if (!$validation['valid']) {
     echo json_encode(['status' => 'error', 'errors' => $validation['errors']]);
@@ -34,21 +36,33 @@ if (!$validation['valid']) {
 }
 $trends = $validation['cleaned'];
 
-// 2. Calculate
-$result = runCalculation($trends);
+// ── Run calculation with level ────────────────────────────────────
+$result = runCalculation($trends, $level, $prevWrong);
 
-// 3. Edge override
+// ── Edge correction (all-10-same / last-5-same) ───────────────────
 $result = applyEdgeCorrection($result, $trends);
 
-// 4. Respond — confidence is whatever the math produced, no fake inflation
+// ── Level-specific label & UI hint ───────────────────────────────
+$levelMeta = [
+    1 => ['label' => 'BET 1',   'color' => '#00e676', 'hint' => 'First prediction — standard analysis'],
+    2 => ['label' => 'BET 2',   'color' => '#f0b90b', 'hint' => 'Deeper analysis after 1st loss — stronger signal'],
+    3 => ['label' => 'BET 3 🔥','color' => '#ff1744', 'hint' => 'MASTER RESULT — maximum depth, must win'],
+];
+$meta = $levelMeta[$level];
+
+// ── Build response ────────────────────────────────────────────────
 echo json_encode([
-    'status'     => 'ok',
-    'prediction' => $result['prediction'],
-    'confidence' => $result['confidence'],
-    'agreed'     => $result['agreed'],
-    'votes'      => $result['votes'],
-    'note'       => $result['note']           ?? '',
-    'edge'       => $result['edge_correction'] ?? null,
-    'detail'     => $result['algorithm_results'],
-    'timestamp'  => $result['timestamp'],
+    'status'      => 'ok',
+    'prediction'  => $result['prediction'],
+    'confidence'  => $result['confidence'],
+    'level'       => $level,
+    'level_label' => $meta['label'],
+    'level_color' => $meta['color'],
+    'level_hint'  => $meta['hint'],
+    'agreed'      => $result['agreed'],
+    'votes'       => $result['votes'],
+    'note'        => $result['note']            ?? '',
+    'edge'        => $result['edge_correction'] ?? null,
+    'detail'      => $result['algorithm_results'],
+    'timestamp'   => $result['timestamp'],
 ]);

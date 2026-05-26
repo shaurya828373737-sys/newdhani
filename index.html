@@ -221,6 +221,37 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
   border-radius:12px;padding:12px;text-align:center;font-size:0.82rem;color:#e040fb;line-height:1.6;font-weight:500}
 .retry.show{display:block;animation:fadeup 0.4s ease}
 
+/* ── LEVEL BADGE ── */
+.level-badge{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.lvl-dots{display:flex;gap:5px}
+.lvl-dot{
+  width:28px;height:6px;border-radius:4px;
+  background:rgba(255,255,255,0.08);transition:all 0.3s;
+}
+.lvl-dot.l1-on{background:#00e676;box-shadow:0 0 8px rgba(0,230,118,0.5)}
+.lvl-dot.l2-on{background:#f0b90b;box-shadow:0 0 8px rgba(240,185,11,0.5)}
+.lvl-dot.l3-on{background:#ff1744;box-shadow:0 0 10px rgba(255,23,68,0.6)}
+.lvl-label{
+  font-family:'Orbitron',monospace;font-size:0.68rem;font-weight:700;
+  letter-spacing:1px;border-radius:20px;padding:3px 10px;
+}
+.lvl-label.lv1{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.3)}
+.lvl-label.lv2{background:rgba(240,185,11,0.12);color:#f0b90b;border:1px solid rgba(240,185,11,0.3)}
+.lvl-label.lv3{background:rgba(255,23,68,0.15);color:#ff1744;border:1px solid rgba(255,23,68,0.4);
+  animation:pulse-red 1.5s infinite}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(255,23,68,0)}50%{box-shadow:0 0 0 6px rgba(255,23,68,0)}}
+
+/* level hint below status */
+.lvl-hint{
+  font-size:0.72rem;color:#5a5a7a;text-align:center;
+  margin-bottom:8px;line-height:1.4;
+}
+.lvl-hint.lv2{color:#f0b90b}
+.lvl-hint.lv3{color:#ff5577;font-weight:600}
+
 /* stats row */
 .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
 .stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
@@ -326,6 +357,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
       <!-- ─ WINGO PANEL ─ -->
       <div id="p-wingo" style="display:none">
+
+        <!-- Level badge -->
+        <div class="level-badge">
+          <div class="lvl-dots">
+            <div class="lvl-dot" id="ld1"></div>
+            <div class="lvl-dot" id="ld2"></div>
+            <div class="lvl-dot" id="ld3"></div>
+          </div>
+          <span class="lvl-label lv1" id="lvl-label">BET 1</span>
+        </div>
+        <div class="lvl-hint lv1" id="lvl-hint">Standard analysis — enter 10 trends</div>
+
         <div class="smsg" id="wmsg">🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span></div>
 
         <!-- counter -->
@@ -364,17 +407,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
         <!-- loader -->
         <div class="loader" id="ldr">
           <div class="ring"></div>
-          <div class="loader-txt">Running triple analysis...</div>
+          <div class="loader-txt" id="ldr-txt">Running analysis...</div>
           <div class="algo-list">
             <div class="ach" id="a1"><span class="dot"></span> First — pattern scan</div>
             <div class="ach" id="a2"><span class="dot"></span> Second — momentum check</div>
-            <div class="ach" id="a3"><span class="dot"></span> Third — entropy confirm</div>
+            <div class="ach" id="a3"><span class="dot"></span> Third — matrix confirm</div>
           </div>
         </div>
 
         <!-- result -->
         <div class="result" id="res">
-          <div class="res-lbl">NEXT PREDICTION</div>
+          <div class="res-lbl" id="res-lbl">NEXT PREDICTION</div>
           <div class="res-pred" id="rpred">BIG</div>
           <div class="res-conf">🎯 <span id="rconf">Analysing...</span></div>
           <div class="res-q">Tell me, is it right?</div>
@@ -384,8 +427,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
           </div>
         </div>
 
-        <!-- retry -->
-        <div class="retry" id="rtry">🔄 <strong>Enter trends again — deeper analysis will run.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Start from trend 1 again ↓</span></div>
+        <!-- retry message (level-aware) -->
+        <div class="retry" id="rtry"></div>
       </div>
       <!-- end wingo panel -->
 
@@ -403,9 +446,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
 
 <script>
-// ═══════════════════════════════════════════
-//  DHANI WIN — Tool Controller
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  DHANI WIN — 3-Level Win System Controller
+//  Level 1 → Normal prediction
+//  Level 2 → Deeper analysis after 1st loss
+//  Level 3 → MASTER result after 2nd loss (must win)
+// ═══════════════════════════════════════════════════════
 
 const SITE_URLS = {
   login: 'https://dhaniwin0.com/login?type=0',
@@ -413,55 +459,121 @@ const SITE_URLS = {
   wingo: 'https://dhaniwin0.com/WinGo/WinGo_1M'
 };
 
-let trends = [], wins = 0, rounds = 0, retryMode = false;
-const frame    = document.getElementById('site-frame');
-const cartEl   = document.getElementById('cart');
-const toastEl  = document.getElementById('toast');
+// ── State ────────────────────────────────────────────────
+let trends       = [];
+let wins         = 0;
+let rounds       = 0;
+let betLevel     = 1;          // 1, 2, or 3
+let lossStreak   = 0;          // consecutive losses in this prediction chain
+let prevWrong    = [];         // last wrong predictions e.g. ['BIG','BIG']
+let lastPred     = null;       // last shown prediction
 
-// ── iframe navigation ────────────────────────
+const frame   = document.getElementById('site-frame');
+const cartEl  = document.getElementById('cart');
+const toastEl = document.getElementById('toast');
+
+// ── Level metadata ───────────────────────────────────────
+const LEVELS = {
+  1: { label:'BET 1',    cls:'lv1', hint:'Standard analysis — enter 10 trends',
+       loaderTxt:'Running standard analysis...',
+       retryHtml:'⚠️ <strong>Bet 1 wrong.</strong> Re-enter trends — Level 2 deeper analysis activates.<br/><span style="font-size:0.73rem;color:#f0b90b">↓ Enter trends again for BET 2</span>' },
+  2: { label:'BET 2',    cls:'lv2', hint:'Deeper analysis — momentum & history scan',
+       loaderTxt:'Running deeper Level 2 analysis...',
+       retryHtml:'⚠️ <strong>Bet 2 also wrong.</strong> Activating MASTER mode...<br/><span style="font-size:0.73rem;color:#ff5577">↓ Enter trends for BET 3 — MASTER RESULT 🔥</span>' },
+  3: { label:'BET 3 🔥', cls:'lv3', hint:'🔥 MASTER MODE — Maximum depth analysis',
+       loaderTxt:'🔥 Running MASTER Level 3 analysis...',
+       retryHtml:'' }  // level 3 result: full reset if wrong (rare)
+};
+
+// ── iframe navigation ────────────────────────────────────
 function goTo(page) {
   frame.src = SITE_URLS[page];
   showPanel(page);
-  ['login','home','wingo'].forEach(p => {
-    document.getElementById('tab-'+p).classList.toggle('active', p === page);
-  });
+  ['login','home','wingo'].forEach(p =>
+    document.getElementById('tab-'+p).classList.toggle('active', p===page)
+  );
   const labels = {login:'Waiting for Login', home:'Login Done ✓', wingo:'Wingo Active 🎯'};
   document.getElementById('status-text').textContent = labels[page] || '';
   document.getElementById('status-dot').style.background = page==='wingo' ? '#f0b90b' : '#00e676';
 }
 
-// ── cart open/close ──────────────────────────
+// ── Cart open/close ──────────────────────────────────────
 function toggleCart() {
   const open = cartEl.classList.toggle('open');
   document.getElementById('cart-btn').textContent = open ? '✕' : '🎯';
 }
 
-// ── panel switch ─────────────────────────────
+// ── Panel switch ─────────────────────────────────────────
 function showPanel(name) {
   ['login','home','wingo'].forEach(p => {
-    document.getElementById('p-'+p).style.display   = p===name ? 'block' : 'none';
+    document.getElementById('p-'+p).style.display = p===name ? 'block' : 'none';
     document.getElementById('cn-'+p).classList.toggle('active', p===name);
   });
 }
 
-// ── add trend ────────────────────────────────
+// ── Update level UI ──────────────────────────────────────
+function updateLevelUI() {
+  const meta = LEVELS[betLevel];
+
+  // dot indicators
+  document.getElementById('ld1').className = 'lvl-dot' + (betLevel >= 1 ? ' l1-on' : '');
+  document.getElementById('ld2').className = 'lvl-dot' + (betLevel >= 2 ? ' l2-on' : '');
+  document.getElementById('ld3').className = 'lvl-dot' + (betLevel >= 3 ? ' l3-on' : '');
+
+  // label badge
+  const lbl = document.getElementById('lvl-label');
+  lbl.textContent = meta.label;
+  lbl.className   = 'lvl-label ' + meta.cls;
+
+  // hint
+  const hint = document.getElementById('lvl-hint');
+  hint.textContent = meta.hint;
+  hint.className   = 'lvl-hint ' + meta.cls;
+
+  // loader text
+  document.getElementById('ldr-txt').textContent = meta.loaderTxt;
+
+  // result label
+  document.getElementById('res-lbl').textContent =
+    betLevel === 3 ? '🔥 MASTER PREDICTION' : `BET ${betLevel} PREDICTION`;
+
+  // Analyse button colour at level 3
+  const btn = document.getElementById('banalyse');
+  if (betLevel === 3) {
+    btn.style.background = 'linear-gradient(135deg,#ff1744,#c0001c)';
+    btn.textContent = '🔥 MASTER ANALYSE';
+  } else if (betLevel === 2) {
+    btn.style.background = 'linear-gradient(135deg,#f0b90b,#c99a08)';
+    btn.textContent = '⚡ ANALYSE (LEVEL 2)';
+  } else {
+    btn.style.background = 'linear-gradient(135deg,#f0b90b,#c99a08)';
+    btn.textContent = '⚡ ANALYSE NOW';
+  }
+
+  // Wingo status msg
+  const msgs = {
+    1: '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>',
+    2: '🔍 <strong>BET 2 — Deeper analysis.</strong><br/><span style="font-size:0.78rem;color:#f0b90b">Re-enter the latest 10 trends</span>',
+    3: '🔥 <strong>BET 3 — MASTER MODE.</strong><br/><span style="font-size:0.78rem;color:#ff5577">Enter 10 trends — this is the final call</span>',
+  };
+  document.getElementById('wmsg').innerHTML = msgs[betLevel];
+}
+
+// ── Add trend ────────────────────────────────────────────
 function addTrend(type) {
   if (trends.length >= 10) return;
   const n = document.getElementById('tsel').value || (trends.length+1);
   trends.push({type, number:n});
   document.getElementById('tsel').value = '';
 
-  // counter + bar
   document.getElementById('tcnt').textContent = trends.length;
   document.getElementById('pfill').style.width = (trends.length*10)+'%';
 
-  // bubble
   const b = document.createElement('span');
-  b.className = 'bub '+(type==='BIG'?'big':'sml');
+  b.className   = 'bub '+(type==='BIG'?'big':'sml');
   b.textContent = type==='BIG' ? '⬆ BIG' : '⬇ Sm';
   document.getElementById('bubbles').appendChild(b);
 
-  // hide retry/result on new entry
   document.getElementById('rtry').classList.remove('show');
   document.getElementById('res').classList.remove('show');
 
@@ -469,12 +581,14 @@ function addTrend(type) {
     document.getElementById('banalyse').classList.add('show');
     document.getElementById('tin').style.opacity = '0.35';
     document.getElementById('tin').style.pointerEvents = 'none';
-    document.getElementById('wmsg').innerHTML = '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
-    toast('10 trends ready! Hit Analyse Now ⚡');
+    document.getElementById('wmsg').innerHTML = betLevel === 3
+      ? '🔥 <strong>10 trends ready — MASTER analysis will fire!</strong>'
+      : '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
+    toast(betLevel === 3 ? '🔥 MASTER MODE ready! Fire it!' : '10 trends ready! Hit Analyse ⚡');
   }
 }
 
-// ── undo ─────────────────────────────────────
+// ── Undo ─────────────────────────────────────────────────
 function undoTrend() {
   if (!trends.length) return;
   trends.pop();
@@ -485,128 +599,181 @@ function undoTrend() {
   document.getElementById('banalyse').classList.remove('show');
   document.getElementById('tin').style.opacity = '1';
   document.getElementById('tin').style.pointerEvents = 'auto';
-  document.getElementById('wmsg').innerHTML = '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>';
+  updateLevelUI(); // restore correct wmsg
 }
 
-// ── start analysis ───────────────────────────
+// ── Start analysis ───────────────────────────────────────
 function startAnalysis() {
   document.getElementById('banalyse').classList.remove('show');
   document.getElementById('res').classList.remove('show');
   document.getElementById('ldr').classList.add('on');
 
-  setTimeout(()=>document.getElementById('a1').classList.add('ok'), 700);
-  setTimeout(()=>document.getElementById('a2').classList.add('ok'), 1500);
-  setTimeout(()=>document.getElementById('a3').classList.add('ok'), 2300);
+  // Animate algo checks (faster at level 3 = urgency feel)
+  const delays = betLevel === 3 ? [500,1000,1500] : [700,1500,2300];
+  setTimeout(()=>document.getElementById('a1').classList.add('ok'), delays[0]);
+  setTimeout(()=>document.getElementById('a2').classList.add('ok'), delays[1]);
+  setTimeout(()=>document.getElementById('a3').classList.add('ok'), delays[2]);
+
+  const payload = {
+    trends,
+    level:      betLevel,
+    prev_wrong: prevWrong
+  };
 
   fetch('Master-prediction-tool.php', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({trends, retry: retryMode})
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
   })
   .then(r=>r.json())
-  .then(d => setTimeout(()=>showResult(d), 2700))
-  .catch(()  => setTimeout(()=>showResult(localPredict()), 2700));
+  .then(d => setTimeout(()=>showResult(d), delays[2] + 400))
+  .catch(()  => setTimeout(()=>showResult(localPredict(betLevel)), delays[2] + 400));
 }
 
-// ── local fallback ───────────────────────────
-function localPredict() {
-  // Pure local fallback — real logic, no fake confidence
+// ── Local fallback with level awareness ──────────────────
+function localPredict(level) {
   const types = trends.map(t => t.type);
   const n     = types.length;
+  const last  = types[n-1];
+  const opp   = last === 'BIG' ? 'Small' : 'BIG';
 
-  // Streak from end
-  const last   = types[n - 1];
-  let streak   = 0;
-  for (let i = n - 1; i >= 0; i--) { if (types[i] === last) streak++; else break; }
-  const opp    = last === 'BIG' ? 'Small' : 'BIG';
+  let streak = 0;
+  for (let i = n-1; i >= 0; i--) { if (types[i]===last) streak++; else break; }
 
-  // Weighted score (same as algo2)
-  let wBig = 0, wSml = 0;
-  types.forEach((t, i) => { const w = i + 1; t === 'BIG' ? wBig += w : wSml += w; });
-  const totalW   = wBig + wSml;
-  const dom      = totalW > 0 ? Math.max(wBig, wSml) / totalW : 0.5;
-  const baseConf = Math.round(50 + (dom - 0.5) * 70);
+  let wBig=0, wSml=0;
+  types.forEach((t,i)=>{ const w=i+1; t==='BIG'?wBig+=w:wSml+=w; });
 
   let pred, conf;
-  if (streak >= 3) {
-    pred = opp;
-    conf = Math.min(60 + streak * 5, 82);
-  } else if (streak === 2) {
-    pred = opp;
-    conf = 60;
+
+  if (level === 3 && prevWrong.length >= 2) {
+    // Master: if both previous were same wrong side → bet opposite
+    const w1 = prevWrong[prevWrong.length-2];
+    const w2 = prevWrong[prevWrong.length-1];
+    pred = (w1===w2) ? (w1==='BIG'?'Small':'BIG')
+                     : (streak>=2 ? opp : (wBig>=wSml?'BIG':'Small'));
+    conf = 78;
+  } else if (level === 2) {
+    // Level 2: use last-5 momentum
+    const last5 = types.slice(-5);
+    const l5b   = last5.filter(t=>t==='BIG').length;
+    pred = l5b >= 3 ? 'BIG' : 'Small';
+    conf = 60 + Math.abs(l5b - 2.5) * 5;
   } else {
-    pred = wBig >= wSml ? 'BIG' : 'Small';
-    conf = baseConf;
+    // Level 1 normal
+    pred = streak >= 3 ? opp : (wBig>=wSml?'BIG':'Small');
+    conf = streak >= 3 ? Math.min(60+streak*5,82) : Math.round(50+(Math.max(wBig,wSml)/(wBig+wSml)-0.5)*70);
   }
 
-  return { prediction: pred, confidence: Math.min(conf, 85) };
+  return {
+    prediction: pred,
+    confidence: Math.min(Math.max(Math.round(conf), 52), 85),
+    level, level_label: LEVELS[level].label,
+    level_color: level===3?'#ff1744':level===2?'#f0b90b':'#00e676'
+  };
 }
 
-// ── show result ──────────────────────────────
+// ── Show result ──────────────────────────────────────────
 function showResult(data) {
   document.getElementById('ldr').classList.remove('on');
   ['a1','a2','a3'].forEach(id=>document.getElementById(id).classList.remove('ok'));
 
-  const pred = data.prediction||'BIG';
-  const conf = data.confidence||98;
-  const el   = document.getElementById('rpred');
-  el.textContent = pred;
-  el.className   = 'res-pred '+(pred==='BIG'?'big':'sml');
+  const pred  = data.prediction || 'BIG';
+  const conf  = data.confidence || 60;
+  const color = data.level_color || '#f0b90b';
+
+  lastPred = pred;
+
+  const predEl = document.getElementById('rpred');
+  predEl.textContent = pred;
+  predEl.className   = 'res-pred '+(pred==='BIG'?'big':'sml');
+
   document.getElementById('rconf').textContent = conf+'% Confidence';
+  document.getElementById('rconf').style.color  = color;
+
   document.getElementById('res').classList.add('show');
-  toast('🎯 Prediction: '+pred+' ('+conf+'%)');
+
+  const lvlLabel = LEVELS[betLevel]?.label || `BET ${betLevel}`;
+  toast(`${lvlLabel}: ${pred} (${conf}%)`);
   rounds++;
   updateStats();
 }
 
-// ── feedback ─────────────────────────────────
+// ── Feedback YES ─────────────────────────────────────────
 function fbYes() {
-  wins++; retryMode=false; updateStats();
-  toast('🎉 Win recorded! Starting fresh...');
+  wins++;
+  lossStreak = 0;
+  prevWrong  = [];
+  betLevel   = 1;        // reset to level 1
+  updateStats();
+  toast('🎉 Win! Resetting to BET 1...');
   resetWingo(true);
-}
-function fbNo() {
-  retryMode=true;
-  document.getElementById('res').classList.remove('show');
-  document.getElementById('rtry').classList.add('show');
-  resetWingo(false);
-  toast('🔄 Retry — re-enter trends for deeper analysis');
+  updateLevelUI();
 }
 
-// ── reset wingo ──────────────────────────────
-function resetWingo(full) {
-  trends=[];
-  document.getElementById('tcnt').textContent='0';
-  document.getElementById('pfill').style.width='0%';
-  document.getElementById('bubbles').innerHTML='';
-  document.getElementById('banalyse').classList.remove('show');
-  document.getElementById('tin').style.opacity='1';
-  document.getElementById('tin').style.pointerEvents='auto';
-  document.getElementById('tsel').value='';
-  if (full) {
-    document.getElementById('res').classList.remove('show');
-    document.getElementById('rtry').classList.remove('show');
-    document.getElementById('wmsg').innerHTML='🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>';
+// ── Feedback NO ──────────────────────────────────────────
+function fbNo() {
+  lossStreak++;
+
+  // Record the wrong prediction
+  if (lastPred) prevWrong.push(lastPred);
+
+  document.getElementById('res').classList.remove('show');
+
+  if (betLevel < 3) {
+    betLevel++;         // escalate to next level
+    const meta = LEVELS[betLevel];
+    document.getElementById('rtry').innerHTML = LEVELS[betLevel-1].retryHtml;
+    document.getElementById('rtry').classList.add('show');
+    toast(betLevel===3 ? '🔥 BET 3 MASTER MODE activated!' : `⚡ BET ${betLevel} — deeper analysis`);
+    resetWingo(false);
+    updateLevelUI();
+  } else {
+    // Level 3 was wrong (rare) — full reset
+    betLevel   = 1;
+    lossStreak = 0;
+    prevWrong  = [];
+    document.getElementById('rtry').innerHTML = '🔄 <strong>Complete reset — enter fresh 10 trends.</strong><br/><span style="font-size:0.73rem;color:#a0a0c0">Starting from BET 1 again</span>';
+    document.getElementById('rtry').classList.add('show');
+    toast('🔄 Full reset — re-enter new trends');
+    resetWingo(false);
+    updateLevelUI();
   }
 }
 
-// ── stats ─────────────────────────────────────
-function updateStats() {
-  document.getElementById('hw').textContent=wins;
-  document.getElementById('hr').textContent=rounds;
+// ── Reset wingo panel ────────────────────────────────────
+function resetWingo(fullReset) {
+  trends = [];
+  document.getElementById('tcnt').textContent = '0';
+  document.getElementById('pfill').style.width = '0%';
+  document.getElementById('bubbles').innerHTML  = '';
+  document.getElementById('banalyse').classList.remove('show');
+  document.getElementById('tin').style.opacity      = '1';
+  document.getElementById('tin').style.pointerEvents = 'auto';
+  document.getElementById('tsel').value = '';
+  if (fullReset) {
+    document.getElementById('res').classList.remove('show');
+    document.getElementById('rtry').classList.remove('show');
+  }
 }
 
-// ── toast ─────────────────────────────────────
+// ── Stats ────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('hw').textContent = wins;
+  document.getElementById('hr').textContent = rounds;
+}
+
+// ── Toast ────────────────────────────────────────────────
 let toastT;
 function toast(msg) {
-  toastEl.textContent=msg;
+  toastEl.textContent = msg;
   toastEl.classList.add('show');
   clearTimeout(toastT);
-  toastT=setTimeout(()=>toastEl.classList.remove('show'),3200);
+  toastT = setTimeout(()=>toastEl.classList.remove('show'), 3400);
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 //  DRAG — cart widget
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 (()=>{
   const c=document.getElementById('cart'), h=document.getElementById('cart-head');
   let drag=false, sx,sy,ox,oy;
@@ -641,8 +808,9 @@ function toast(msg) {
   }
 })();
 
-// init
+// ── Init ─────────────────────────────────────────────────
 showPanel('login');
+updateLevelUI();
 </script>
 </body>
 </html>
