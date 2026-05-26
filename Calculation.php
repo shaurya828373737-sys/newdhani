@@ -1,121 +1,91 @@
 <?php
 /**
  * Calculation.php — DHANI WIN
- * Core calculation engine: aggregates votes from all 3 algorithms,
- * resolves conflicts, and computes final weighted confidence score.
+ * Aggregates results from all 3 algorithms.
+ *
+ * Rule:
+ * - Run all 3 independently
+ * - If 3/3 agree → use that, high confidence
+ * - If 2/3 agree → use the majority, medium confidence
+ * - If 1/3 (impossible with 3 algos) → use algo2 (recency) as tiebreaker
+ * - Final confidence = average of agreeing algorithms
  */
 
 require_once __DIR__ . '/First-time-trend-anylyse.php';
 require_once __DIR__ . '/Second-time-anylyse.php';
 require_once __DIR__ . '/Third-time-anylyse.php';
 
-// ─────────────────────────────────────────────
-//  Run all 3 algorithms and aggregate
-// ─────────────────────────────────────────────
 function runCalculation(array $trends, bool $retryMode = false): array {
-    // ── Run all three in sequence (simulated parallel) ──
-    $r1 = firstTimeAnalyse($trends, $retryMode);
+
+    // Run all 3
+    $r1 = firstTimeAnalyse($trends,  $retryMode);
     $r2 = secondTimeAnalyse($trends, $retryMode);
-    $r3 = thirdTimeAnalyse($trends, $retryMode);
+    $r3 = thirdTimeAnalyse($trends,  $retryMode);
 
-    $results = [$r1, $r2, $r3];
+    $p1 = $r1['prediction'];
+    $p2 = $r2['prediction'];
+    $p3 = $r3['prediction'];
 
-    // ── Vote tally ───────────────────────────────
-    $votes     = ['BIG' => 0, 'Small' => 0];
-    $confSum   = ['BIG' => 0.0, 'Small' => 0.0];
+    $c1 = $r1['confidence'];
+    $c2 = $r2['confidence'];
+    $c3 = $r3['confidence'];
 
-    foreach ($results as $r) {
-        $pred = $r['prediction'] ?? null;
-        $conf = $r['confidence'] ?? 0;
-        if ($pred) {
-            $votes[$pred]++;
-            $confSum[$pred] += $conf;
-        }
-    }
+    // ── Vote count ───────────────────────────────────────────────
+    $votes = ['BIG' => 0, 'Small' => 0];
+    $votes[$p1]++;
+    $votes[$p2]++;
+    $votes[$p3]++;
 
-    // ── Consensus check ──────────────────────────
     $agreed = ($votes['BIG'] === 3 || $votes['Small'] === 3);
 
-    // ── Weighted final prediction ────────────────
-    // Algorithm weights: First=30%, Second=35%, Third=35%
-    $weights    = [0.30, 0.35, 0.35];
-    $weightedBIG   = 0.0;
-    $weightedSmall = 0.0;
-
-    foreach ($results as $i => $r) {
-        $pred = $r['prediction'] ?? 'BIG';
-        $conf = ($r['confidence'] ?? 50) / 100;
-        if ($pred === 'BIG')   $weightedBIG   += $weights[$i] * $conf;
-        else                    $weightedSmall += $weights[$i] * $conf;
-    }
-
-    $finalPrediction = ($weightedBIG >= $weightedSmall) ? 'BIG' : 'Small';
-
-    // ── Confidence calculation ───────────────────
-    $leadScore   = max($weightedBIG, $weightedSmall);
-    $totalScore  = $weightedBIG + $weightedSmall;
-    $rawConf     = $totalScore > 0 ? ($leadScore / $totalScore) : 0.5;
-
-    // Agreement bonus
+    // ── Determine winner ─────────────────────────────────────────
     if ($agreed) {
-        $agreementBonus = $retryMode ? 0.08 : 0.05;
+        // All 3 agree — use their average confidence
+        $finalPrediction = $p1;
+        $finalConfidence = (int) round(($c1 + $c2 + $c3) / 3);
+
+    } elseif ($votes['BIG'] === 2) {
+        // BIG wins 2-1 — average only the BIG voters
+        $finalPrediction = 'BIG';
+        $bigConfs = [];
+        if ($p1 === 'BIG') $bigConfs[] = $c1;
+        if ($p2 === 'BIG') $bigConfs[] = $c2;
+        if ($p3 === 'BIG') $bigConfs[] = $c3;
+        $finalConfidence = (int) round(array_sum($bigConfs) / count($bigConfs));
+
     } else {
-        $agreementBonus = 0;
+        // Small wins 2-1 — average only the Small voters
+        $finalPrediction = 'Small';
+        $smlConfs = [];
+        if ($p1 === 'Small') $smlConfs[] = $c1;
+        if ($p2 === 'Small') $smlConfs[] = $c2;
+        if ($p3 === 'Small') $smlConfs[] = $c3;
+        $finalConfidence = (int) round(array_sum($smlConfs) / count($smlConfs));
     }
 
-    $finalConf = (int) min(
-        round(($rawConf * 0.35 + 0.63 + $agreementBonus) * 100),
-        $retryMode ? 99 : 98
-    );
-    $finalConf = max($finalConf, 82); // floor
-
-    // ── Resolve conflict if algorithms disagree ──
-    $conflictResolution = null;
-    if (!$agreed && $votes['BIG'] !== $votes['Small']) {
-        $majority = ($votes['BIG'] > $votes['Small']) ? 'BIG' : 'Small';
-        if ($majority !== $finalPrediction) {
-            $finalPrediction    = $majority;
-            $conflictResolution = "Majority override: 2/3 algorithms agree on {$majority}";
-        }
-    } elseif ($votes['BIG'] === $votes['Small']) {
-        // Perfect 1.5/1.5 split (impossible with 3, but safeguard)
-        // Use weighted score as tiebreaker — already handled above
-        $conflictResolution = "Tie resolved by weighted confidence scores";
-    }
+    // ── Clamp confidence ─────────────────────────────────────────
+    $max = $retryMode ? 99 : 98;
+    $finalConfidence = min(max($finalConfidence, 82), $max);
 
     return [
-        'prediction'          => $finalPrediction,
-        'confidence'          => $finalConf,
-        'agreed'              => $agreed,
-        'votes'               => $votes,
-        'weighted'            => [
-            'BIG'   => round($weightedBIG,   4),
-            'Small' => round($weightedSmall, 4),
+        'prediction'       => $finalPrediction,
+        'confidence'       => $finalConfidence,
+        'agreed'           => $agreed,
+        'votes'            => $votes,
+        'algorithm_results' => [
+            'first'  => ['prediction' => $p1, 'confidence' => $c1, 'reason' => $r1['reason'] ?? ''],
+            'second' => ['prediction' => $p2, 'confidence' => $c2, 'reason' => $r2['reason'] ?? ''],
+            'third'  => ['prediction' => $p3, 'confidence' => $c3, 'reason' => $r3['reason'] ?? ''],
         ],
-        'algorithm_results'   => [
-            'first'  => ['prediction' => $r1['prediction'], 'confidence' => $r1['confidence']],
-            'second' => ['prediction' => $r2['prediction'], 'confidence' => $r2['confidence']],
-            'third'  => ['prediction' => $r3['prediction'], 'confidence' => $r3['confidence']],
-        ],
-        'conflict_resolution' => $conflictResolution,
-        'retry_mode'          => $retryMode,
-        'timestamp'           => date('Y-m-d H:i:s'),
+        'retry_mode'  => $retryMode,
+        'timestamp'   => date('Y-m-d H:i:s'),
     ];
 }
 
-// ─────────────────────────────────────────────
-//  HTTP handler
-// ─────────────────────────────────────────────
+// HTTP handler
 if (php_sapi_name() !== 'cli' && basename(__FILE__) === basename($_SERVER['PHP_SELF'])) {
     header('Content-Type: application/json');
-    $input     = json_decode(file_get_contents('php://input'), true) ?? [];
-    $trends    = $input['trends'] ?? [];
-    $retryMode = $input['retry']  ?? false;
-
-    if (empty($trends)) {
-        echo json_encode(['error' => 'No trends provided']);
-        exit;
-    }
-
-    echo json_encode(runCalculation($trends, $retryMode));
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    if (empty($input['trends'])) { echo json_encode(['error' => 'No trends']); exit; }
+    echo json_encode(runCalculation($input['trends'], $input['retry'] ?? false));
 }

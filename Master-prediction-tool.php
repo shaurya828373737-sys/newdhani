@@ -2,26 +2,21 @@
 /**
  * Master-prediction-tool.php — DHANI WIN
  * ==========================================
- * THE MAIN ORCHESTRATOR
- * Receives trend data from the frontend Cart,
- * runs all analysis engines in sequence,
- * resolves consensus, and returns the final prediction.
+ * Main entry point. Called by the frontend cart via POST.
  *
- * Flow:
- *   1. Validate input
- *   2. Store trends (get-data.php)
- *   3. Run PHP triple analysis (Calculation.php)
- *   4. Run Python analysis (Python-get-prediction.php)
- *   5. Apply accuracy helpers (Help-to-take-accurate.php)
- *   6. Return final JSON prediction to Cart
+ * Pipeline (simple & clean):
+ *   1. Parse + validate input
+ *   2. Edge correction check (all-same, last-5-same)
+ *   3. Run Calculation (3 algorithms → majority vote)
+ *   4. Apply edge override if needed
+ *   5. Return JSON to cart
+ *
+ * No Python dependency. No file writes needed for basic operation.
  */
 
-require_once __DIR__ . '/get-data.php';
-require_once __DIR__ . '/Calculation.php';
-require_once __DIR__ . '/Python-get-prediction.php';
 require_once __DIR__ . '/Help-to-take-accurate.php';
+require_once __DIR__ . '/Calculation.php';
 
-// ── CORS & Headers ───────────────────────────
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -32,85 +27,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// ── Only accept POST ─────────────────────────
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['error' => 'POST method required']);
+    echo json_encode(['error' => 'POST required']);
     exit;
 }
 
-// ── Parse input ──────────────────────────────
+// ── 1. Parse input ───────────────────────────────────────────────
 $raw   = file_get_contents('php://input');
 $input = json_decode($raw, true);
 
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(['error' => 'Invalid JSON input']);
+if (json_last_error() !== JSON_ERROR_NONE || !is_array($input)) {
+    echo json_encode(['error' => 'Invalid JSON']);
     exit;
 }
 
-$trends    = $input['trends'] ?? [];
 $retryMode = (bool)($input['retry'] ?? false);
+$rawTrends = $input['trends'] ?? [];
 
-// ─────────────────────────────────────────────
-//  STEP 1: Validate
-// ─────────────────────────────────────────────
-$validation = validateTrends($trends);
+// ── 2. Validate ──────────────────────────────────────────────────
+$validation = validateTrends($rawTrends);
+
 if (!$validation['valid']) {
     echo json_encode([
-        'error'  => 'Validation failed',
-        'issues' => $validation['errors'],
+        'status' => 'error',
+        'errors' => $validation['errors'],
     ]);
     exit;
 }
+
 $trends = $validation['cleaned'];
 
-// ─────────────────────────────────────────────
-//  STEP 2: Store trends
-// ─────────────────────────────────────────────
-storeTrends($trends, $retryMode);
+// ── 3. Run 3-algorithm calculation ──────────────────────────────
+$result = runCalculation($trends, $retryMode);
 
-// ─────────────────────────────────────────────
-//  STEP 3: PHP Triple Algorithm (Calculation)
-// ─────────────────────────────────────────────
-$phpResult = runCalculation($trends, $retryMode);
+// ── 4. Apply edge correction ─────────────────────────────────────
+$result = applyEdgeCorrection($result, $trends);
 
-// ─────────────────────────────────────────────
-//  STEP 4: Python + Combined prediction
-// ─────────────────────────────────────────────
-$combinedResult = getCombinedPrediction($trends, $retryMode);
-
-// ─────────────────────────────────────────────
-//  STEP 5: Accuracy boosting & edge correction
-// ─────────────────────────────────────────────
-$finalResult = boostConfidence($combinedResult, $trends, $retryMode);
-$finalResult = applyEdgeCorrection($finalResult, $trends);
-
-// ─────────────────────────────────────────────
-//  STEP 6: Log result
-// ─────────────────────────────────────────────
-logResult(
-    $finalResult['prediction'],
-    $finalResult['confidence'],
-    null // feedback not known yet
-);
-
-// ─────────────────────────────────────────────
-//  STEP 7: Build final response for Cart
-// ─────────────────────────────────────────────
-$response = [
+// ── 5. Return final result to cart ──────────────────────────────
+echo json_encode([
     'status'     => 'ok',
-    'prediction' => $finalResult['prediction'],
-    'confidence' => $finalResult['confidence'],
-    'agreed'     => $finalResult['agreed']       ?? false,
+    'prediction' => $result['prediction'],
+    'confidence' => $result['confidence'],
+    'agreed'     => $result['agreed'],
+    'votes'      => $result['votes'],
     'retry_mode' => $retryMode,
     'timestamp'  => date('Y-m-d H:i:s'),
-
-    // Detailed breakdown (visible in dev tools / logs)
-    'detail' => [
-        'php_votes'      => $phpResult['algorithm_results'] ?? [],
-        'python_source'  => $combinedResult['py_result']['source'] ?? 'unknown',
-        'boost_applied'  => $finalResult['boost_applied']   ?? 0,
-        'edge_correction'=> $finalResult['edge_correction'] ?? null,
-    ],
-];
-
-echo json_encode($response);
+    'detail'     => $result['algorithm_results'],
+    'edge'       => $result['edge_correction'] ?? null,
+]);
