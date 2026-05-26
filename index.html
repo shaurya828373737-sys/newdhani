@@ -6,6 +6,8 @@
   <title>DHANI WIN — Prediction Tool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="UI-look.css"/>
+  <link rel="stylesheet" href="get-accurate-result.css"/>
 <style>
 /* ── RESET & BASE ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -13,51 +15,56 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
 /* ── TOP BAR ── */
 #topbar{
-  position:fixed;top:0;left:0;right:0;height:44px;z-index:9000;
-  background:rgba(10,10,15,0.97);
+  position:fixed;top:0;left:0;right:0;height:48px;z-index:9000;
+  background:rgba(10,10,15,0.98);
   border-bottom:1px solid rgba(240,185,11,0.3);
   display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;gap:8px;
+  padding:0 16px;gap:10px;
 }
 #topbar .logo{
-  font-family:'Orbitron',monospace;font-size:1rem;font-weight:900;
+  font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;
   color:#f0b90b;letter-spacing:2px;white-space:nowrap;
   text-shadow:0 0 14px rgba(240,185,11,0.5);
 }
 #topbar .logo span{color:#fff}
-.nav-tabs{display:flex;gap:5px;flex:1;justify-content:center}
+.nav-tabs{display:flex;gap:6px;flex:1;justify-content:center}
 .nav-tab{
-  padding:5px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);
+  padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);
   background:rgba(255,255,255,0.04);color:#a0a0c0;
-  font-family:'Rajdhani',sans-serif;font-size:0.78rem;font-weight:600;
+  font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:600;
   cursor:pointer;transition:all 0.2s;white-space:nowrap;
 }
 .nav-tab:hover,.nav-tab.active{
   background:rgba(240,185,11,0.15);border-color:rgba(240,185,11,0.4);color:#f0b90b;
 }
 #status-pill{
-  display:flex;align-items:center;gap:5px;
+  display:flex;align-items:center;gap:6px;
   background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-  border-radius:20px;padding:3px 10px;white-space:nowrap;
+  border-radius:20px;padding:4px 12px;white-space:nowrap;
 }
-#status-dot{width:7px;height:7px;border-radius:50%;background:#00e676;
+#status-dot{width:8px;height:8px;border-radius:50%;background:#00e676;
   animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-#status-text{font-size:0.72rem;color:#00e676;font-weight:600}
+#status-text{font-size:0.75rem;color:#00e676;font-weight:600}
+</style>
+</head>
+<body>
 
-/* ── IFRAME (full page below topbar) ── */
+
+<style>
+/* ── IFRAME ── */
 #site-frame{
-  position:fixed;top:44px;left:0;right:0;bottom:0;
-  width:100%;height:calc(100vh - 44px);
+  position:fixed;top:48px;left:0;right:0;bottom:0;
+  width:100%;height:calc(100vh - 48px);
   border:none;background:#111;
 }
 
 /* ── CART TOGGLE BTN ── */
 #cart-btn{
   position:fixed;bottom:24px;right:24px;z-index:9999;
-  width:58px;height:58px;border-radius:50%;border:none;
+  width:60px;height:60px;border-radius:50%;border:none;
   background:linear-gradient(135deg,#f0b90b,#c99a08);
-  font-size:1.5rem;cursor:pointer;
+  font-size:1.6rem;cursor:pointer;
   box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0.4);
   animation:pulse-btn 2.5s infinite;transition:transform 0.2s;
   display:flex;align-items:center;justify-content:center;
@@ -71,8 +78,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
 /* ── CART WIDGET ── */
 #cart{
-  position:fixed;bottom:92px;right:24px;z-index:9998;
-  width:320px;display:none;
+  position:fixed;bottom:94px;right:24px;z-index:9998;
+  width:340px;display:none;
   filter:drop-shadow(0 12px 40px rgba(0,0,0,0.85));
 }
 #cart.open{display:block;animation:cart-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)}
@@ -88,203 +95,191 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 .cart-head{
   background:linear-gradient(135deg,rgba(240,185,11,0.12),rgba(240,185,11,0.04));
   border-bottom:1px solid rgba(240,185,11,0.18);
-  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
   cursor:grab;
 }
 .cart-head:active{cursor:grabbing}
-.cart-head-title{font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;color:#f0b90b;letter-spacing:1.5px}
+.cart-head-title{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;color:#f0b90b;letter-spacing:1.5px}
 .cart-badge{
-  font-size:0.65rem;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);
-  border-radius:20px;padding:2px 8px;color:#00e676;font-weight:700;letter-spacing:1px;
+  font-size:0.68rem;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);
+  border-radius:20px;padding:3px 10px;color:#00e676;font-weight:700;letter-spacing:1px;
 }
 .cart-x{
   background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
-  border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;
-  color:#a0a0c0;cursor:pointer;font-size:0.9rem;transition:all 0.2s;
+  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  color:#a0a0c0;cursor:pointer;font-size:1rem;transition:all 0.2s;
 }
 .cart-x:hover{background:rgba(255,23,68,0.2);border-color:rgba(255,23,68,0.4);color:#ff1744}
 
 /* cart scroll body */
-.cart-scroll{max-height:380px;overflow-y:auto;padding:12px 14px;scrollbar-width:thin;scrollbar-color:rgba(240,185,11,0.25) transparent}
-.cart-scroll::-webkit-scrollbar{width:3px}
+.cart-scroll{max-height:420px;overflow-y:auto;padding:14px 16px;scrollbar-width:thin;scrollbar-color:rgba(240,185,11,0.25) transparent}
+.cart-scroll::-webkit-scrollbar{width:4px}
 .cart-scroll::-webkit-scrollbar-thumb{background:rgba(240,185,11,0.25);border-radius:2px}
 </style>
-</head>
-<body>
 
 
 <style>
 /* ── STATUS MSG ── */
 .smsg{
-  background:rgba(240,185,11,0.07);border:1px solid rgba(240,185,11,0.2);
-  border-radius:10px;padding:10px 12px;font-size:0.85rem;color:#f0b90b;
-  font-weight:500;line-height:1.5;margin-bottom:10px;position:relative;overflow:hidden;
+  background:rgba(240,185,11,0.08);border:1px solid rgba(240,185,11,0.2);
+  border-radius:12px;padding:12px 14px;font-size:0.88rem;color:#f0b90b;
+  font-weight:500;line-height:1.5;margin-bottom:12px;position:relative;overflow:hidden;
 }
 .smsg::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#f0b90b;border-radius:3px 0 0 3px}
 
 /* ── COUNTER ROW ── */
-.ctr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.ctr-lbl{font-size:0.72rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px}
-.ctr-val{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:#f0b90b}
-.ctr-val small{font-size:0.8rem;color:#5a5a7a}
+.ctr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ctr-lbl{font-size:0.75rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px}
+.ctr-val{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;color:#f0b90b}
+.ctr-val small{font-size:0.85rem;color:#5a5a7a}
 
 /* progress bar */
-.pbar{background:rgba(255,255,255,0.05);border-radius:8px;height:5px;margin-bottom:10px;overflow:hidden}
+.pbar{background:rgba(255,255,255,0.05);border-radius:8px;height:6px;margin-bottom:12px;overflow:hidden}
 .pbar-fill{height:100%;background:linear-gradient(90deg,#f0b90b,#00e676);border-radius:8px;
-  transition:width 0.35s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 8px rgba(240,185,11,0.4)}
+  transition:width 0.35s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(240,185,11,0.5)}
 
 /* bubbles */
-.bubbles{display:flex;flex-wrap:wrap;gap:5px;min-height:32px;margin-bottom:10px}
-.bub{padding:3px 9px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:1px;animation:bpop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.bubbles{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;margin-bottom:12px}
+.bub{padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;letter-spacing:1px;animation:bpop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes bpop{from{opacity:0;transform:scale(0.2)}to{opacity:1;transform:scale(1)}}
 .bub.big{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.35);color:#00e676}
 .bub.sml{background:rgba(255,23,68,0.12);border:1px solid rgba(255,23,68,0.35);color:#ff5577}
 
 /* trend input */
-.tin-lbl{font-size:0.7rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.tbtn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.tin-lbl{font-size:0.72rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.tbtn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .tbtn{
-  padding:10px;border-radius:10px;border:2px solid transparent;
-  font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;
+  padding:12px;border-radius:12px;border:2px solid transparent;
+  font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;
   cursor:pointer;transition:all 0.18s;letter-spacing:1px;
 }
-.tbtn.big{background:rgba(0,230,118,0.07);border-color:rgba(0,230,118,0.25);color:#00e676}
-.tbtn.big:hover{background:rgba(0,230,118,0.18);border-color:#00e676;box-shadow:0 0 14px rgba(0,230,118,0.25);transform:translateY(-2px)}
-.tbtn.sml{background:rgba(255,23,68,0.07);border-color:rgba(255,23,68,0.25);color:#ff5577}
-.tbtn.sml:hover{background:rgba(255,23,68,0.18);border-color:#ff1744;box-shadow:0 0 14px rgba(255,23,68,0.25);transform:translateY(-2px)}
+.tbtn.big{background:rgba(0,230,118,0.08);border-color:rgba(0,230,118,0.3);color:#00e676}
+.tbtn.big:hover{background:rgba(0,230,118,0.2);border-color:#00e676;box-shadow:0 0 16px rgba(0,230,118,0.3);transform:translateY(-2px)}
+.tbtn.sml{background:rgba(255,23,68,0.08);border-color:rgba(255,23,68,0.3);color:#ff5577}
+.tbtn.sml:hover{background:rgba(255,23,68,0.2);border-color:#ff1744;box-shadow:0 0 16px rgba(255,23,68,0.3);transform:translateY(-2px)}
 
 /* number select + undo */
-.sel-row{display:flex;gap:6px;margin-bottom:8px}
+.sel-row{display:flex;gap:8px;margin-bottom:10px}
 .tsel{
-  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
-  border-radius:8px;padding:7px 10px;color:#fff;font-family:'Rajdhani',sans-serif;
-  font-size:0.88rem;outline:none;cursor:pointer;
+  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:8px 12px;color:#fff;font-family:'Rajdhani',sans-serif;
+  font-size:0.9rem;outline:none;cursor:pointer;
 }
-.tsel:focus{border-color:rgba(240,185,11,0.35)}
+.tsel:focus{border-color:rgba(240,185,11,0.4)}
 .tsel option{background:#13131f}
 .undo-btn{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
-  border-radius:8px;padding:7px 10px;color:#a0a0c0;cursor:pointer;
-  font-size:1rem;transition:all 0.18s;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;padding:8px 12px;color:#a0a0c0;cursor:pointer;
+  font-size:1.1rem;transition:all 0.18s;
 }
 .undo-btn:hover{border-color:rgba(255,23,68,0.4);color:#ff5577}
+</style>
 
+
+<style>
 /* analyse button */
 .btn-analyse{
-  width:100%;padding:11px;background:linear-gradient(135deg,#f0b90b,#c99a08);
+  width:100%;padding:13px;background:linear-gradient(135deg,#f0b90b,#c99a08);
   border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
-  font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;
-  transition:all 0.25s;display:none;margin-top:4px;
+  font-size:0.85rem;font-weight:700;letter-spacing:2px;cursor:pointer;
+  transition:all 0.25s;display:none;margin-top:6px;
 }
 .btn-analyse.show{display:block;animation:fadeup 0.4s ease}
-.btn-analyse:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(240,185,11,0.4)}
+.btn-analyse:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(240,185,11,0.45)}
 @keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 /* loader */
-.loader{display:none;flex-direction:column;align-items:center;padding:16px 10px;gap:8px}
+.loader{display:none;flex-direction:column;align-items:center;padding:20px 12px;gap:10px}
 .loader.on{display:flex}
-.ring{width:46px;height:46px;border:3px solid rgba(240,185,11,0.15);border-top-color:#f0b90b;border-radius:50%;animation:spin 0.75s linear infinite}
+.ring{width:50px;height:50px;border:3px solid rgba(240,185,11,0.15);border-top-color:#f0b90b;border-radius:50%;animation:spin 0.75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader-txt{font-size:0.75rem;color:#a0a0c0;text-align:center}
-.algo-list{width:100%;display:flex;flex-direction:column;gap:4px}
-.ach{display:flex;align-items:center;gap:6px;font-size:0.72rem;color:#5a5a7a;transition:color 0.3s}
+.loader-txt{font-size:0.8rem;color:#a0a0c0;text-align:center}
+.algo-list{width:100%;display:flex;flex-direction:column;gap:5px}
+.ach{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:#5a5a7a;transition:color 0.3s}
 .ach.ok{color:#00e676}
-.ach .dot{width:5px;height:5px;border-radius:50%;background:#5a5a7a;flex-shrink:0;transition:all 0.3s}
-.ach.ok .dot{background:#00e676;box-shadow:0 0 7px rgba(0,230,118,0.6)}
+.ach .dot{width:6px;height:6px;border-radius:50%;background:#5a5a7a;flex-shrink:0;transition:all 0.3s}
+.ach.ok .dot{background:#00e676;box-shadow:0 0 8px rgba(0,230,118,0.6)}
 
 /* result */
-.result{display:none;flex-direction:column;align-items:center;gap:10px;padding:4px 0}
+.result{display:none;flex-direction:column;align-items:center;gap:12px;padding:6px 0}
 .result.show{display:flex;animation:fadeup 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-.res-lbl{font-size:0.7rem;color:#a0a0c0;letter-spacing:2px;text-transform:uppercase}
+.res-lbl{font-size:0.72rem;color:#a0a0c0;letter-spacing:2px;text-transform:uppercase}
 .res-pred{
-  font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;
-  letter-spacing:3px;padding:8px 28px;border-radius:12px;text-align:center;
+  font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;
+  letter-spacing:3px;padding:10px 30px;border-radius:14px;text-align:center;
 }
-.res-pred.big{color:#00e676;background:rgba(0,230,118,0.1);border:2px solid rgba(0,230,118,0.4);
-  box-shadow:0 0 28px rgba(0,230,118,0.2);text-shadow:0 0 18px rgba(0,230,118,0.5)}
-.res-pred.sml{color:#ff5577;background:rgba(255,23,68,0.1);border:2px solid rgba(255,23,68,0.4);
-  box-shadow:0 0 28px rgba(255,23,68,0.2);text-shadow:0 0 18px rgba(255,23,68,0.5)}
-.res-conf{display:flex;align-items:center;gap:5px;font-size:0.83rem;color:#f0b90b;font-weight:600}
-.res-q{font-size:0.85rem;color:#a0a0c0;text-align:center;font-weight:500}
-.fb-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%}
-.btn-yes{padding:9px;background:rgba(0,230,118,0.08);border:2px solid rgba(0,230,118,0.35);
-  border-radius:10px;color:#00e676;font-family:'Orbitron',monospace;font-size:0.75rem;
+.res-pred.big{color:#00e676;background:rgba(0,230,118,0.12);border:2px solid rgba(0,230,118,0.45);
+  box-shadow:0 0 30px rgba(0,230,118,0.25);text-shadow:0 0 20px rgba(0,230,118,0.5)}
+.res-pred.sml{color:#ff5577;background:rgba(255,23,68,0.12);border:2px solid rgba(255,23,68,0.45);
+  box-shadow:0 0 30px rgba(255,23,68,0.25);text-shadow:0 0 20px rgba(255,23,68,0.5)}
+.res-conf{display:flex;align-items:center;gap:6px;font-size:0.88rem;color:#f0b90b;font-weight:600}
+.res-q{font-size:0.9rem;color:#a0a0c0;text-align:center;font-weight:500}
+.fb-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.btn-yes{padding:10px;background:rgba(0,230,118,0.1);border:2px solid rgba(0,230,118,0.4);
+  border-radius:10px;color:#00e676;font-family:'Orbitron',monospace;font-size:0.8rem;
   font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
-.btn-yes:hover{background:rgba(0,230,118,0.2);border-color:#00e676;box-shadow:0 0 13px rgba(0,230,118,0.3)}
-.btn-no{padding:9px;background:rgba(255,23,68,0.07);border:2px solid rgba(255,23,68,0.28);
-  border-radius:10px;color:#ff5577;font-family:'Orbitron',monospace;font-size:0.75rem;
+.btn-yes:hover{background:rgba(0,230,118,0.22);border-color:#00e676;box-shadow:0 0 15px rgba(0,230,118,0.35)}
+.btn-no{padding:10px;background:rgba(255,23,68,0.08);border:2px solid rgba(255,23,68,0.35);
+  border-radius:10px;color:#ff5577;font-family:'Orbitron',monospace;font-size:0.8rem;
   font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
-.btn-no:hover{background:rgba(255,23,68,0.18);border-color:#ff1744;box-shadow:0 0 13px rgba(255,23,68,0.3)}
+.btn-no:hover{background:rgba(255,23,68,0.2);border-color:#ff1744;box-shadow:0 0 15px rgba(255,23,68,0.35)}
 
 /* retry */
-.retry{display:none;background:rgba(213,0,249,0.07);border:1px solid rgba(213,0,249,0.28);
-  border-radius:12px;padding:12px;text-align:center;font-size:0.82rem;color:#e040fb;line-height:1.6;font-weight:500}
+.retry{display:none;background:rgba(213,0,249,0.08);border:1px solid rgba(213,0,249,0.3);
+  border-radius:12px;padding:14px;text-align:center;font-size:0.85rem;color:#e040fb;line-height:1.6;font-weight:500}
 .retry.show{display:block;animation:fadeup 0.4s ease}
+</style>
 
+
+<style>
 /* ── LEVEL BADGE ── */
-.level-badge{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:10px;
-}
-.lvl-dots{display:flex;gap:5px}
-.lvl-dot{
-  width:28px;height:6px;border-radius:4px;
-  background:rgba(255,255,255,0.08);transition:all 0.3s;
-}
-.lvl-dot.l1-on{background:#00e676;box-shadow:0 0 8px rgba(0,230,118,0.5)}
-.lvl-dot.l2-on{background:#f0b90b;box-shadow:0 0 8px rgba(240,185,11,0.5)}
-.lvl-dot.l3-on{background:#ff1744;box-shadow:0 0 10px rgba(255,23,68,0.6)}
-.lvl-label{
-  font-family:'Orbitron',monospace;font-size:0.68rem;font-weight:700;
-  letter-spacing:1px;border-radius:20px;padding:3px 10px;
-}
-.lvl-label.lv1{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.3)}
-.lvl-label.lv2{background:rgba(240,185,11,0.12);color:#f0b90b;border:1px solid rgba(240,185,11,0.3)}
-.lvl-label.lv3{background:rgba(255,23,68,0.15);color:#ff1744;border:1px solid rgba(255,23,68,0.4);
-  animation:pulse-red 1.5s infinite}
-@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(255,23,68,0)}50%{box-shadow:0 0 0 6px rgba(255,23,68,0)}}
+.level-badge{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.lvl-dots{display:flex;gap:6px}
+.lvl-dot{width:30px;height:7px;border-radius:4px;background:rgba(255,255,255,0.08);transition:all 0.3s}
+.lvl-dot.l1-on{background:#00e676;box-shadow:0 0 10px rgba(0,230,118,0.6)}
+.lvl-dot.l2-on{background:#f0b90b;box-shadow:0 0 10px rgba(240,185,11,0.6)}
+.lvl-dot.l3-on{background:#ff1744;box-shadow:0 0 12px rgba(255,23,68,0.7)}
+.lvl-label{font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:1px;border-radius:20px;padding:4px 12px}
+.lvl-label.lv1{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.35)}
+.lvl-label.lv2{background:rgba(240,185,11,0.12);color:#f0b90b;border:1px solid rgba(240,185,11,0.35)}
+.lvl-label.lv3{background:rgba(255,23,68,0.15);color:#ff1744;border:1px solid rgba(255,23,68,0.45);animation:pulse-red 1.5s infinite}
+@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(255,23,68,0)}50%{box-shadow:0 0 0 8px rgba(255,23,68,0)}}
 
 /* level hint below status */
-.lvl-hint{
-  font-size:0.72rem;color:#5a5a7a;text-align:center;
-  margin-bottom:8px;line-height:1.4;
-}
+.lvl-hint{font-size:0.75rem;color:#5a5a7a;text-align:center;margin-bottom:10px;line-height:1.5}
 .lvl-hint.lv2{color:#f0b90b}
 .lvl-hint.lv3{color:#ff5577;font-weight:600}
 
 /* stats row */
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
-  border-radius:10px;padding:8px;text-align:center}
-.stat-v{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:700;color:#f0b90b}
-.stat-l{font-size:0.62rem;color:#5a5a7a;text-transform:uppercase;letter-spacing:1px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px;text-align:center}
+.stat-v{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:#f0b90b}
+.stat-l{font-size:0.65rem;color:#5a5a7a;text-transform:uppercase;letter-spacing:1px}
 
 /* cart nav */
-.cart-nav{
-  border-top:1px solid rgba(255,255,255,0.05);
-  display:flex;gap:4px;padding:8px 10px;background:rgba(0,0,0,0.18);
-}
+.cart-nav{border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:5px;padding:10px 12px;background:rgba(0,0,0,0.2)}
 .cnav{
-  flex:1;padding:7px 4px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);
+  flex:1;padding:8px 5px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
   background:rgba(255,255,255,0.03);color:#a0a0c0;
-  font-family:'Rajdhani',sans-serif;font-size:0.73rem;font-weight:600;
+  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:600;
   cursor:pointer;transition:all 0.2s;text-align:center;display:flex;
-  flex-direction:column;align-items:center;gap:2px;
+  flex-direction:column;align-items:center;gap:3px;
 }
-.cnav .ni{font-size:0.95rem}
-.cnav:hover,.cnav.active{background:rgba(240,185,11,0.1);border-color:rgba(240,185,11,0.3);color:#f0b90b}
+.cnav .ni{font-size:1rem}
+.cnav:hover,.cnav.active{background:rgba(240,185,11,0.12);border-color:rgba(240,185,11,0.35);color:#f0b90b}
 
 /* toast */
 .toast{
-  position:fixed;top:56px;right:16px;z-index:10000;
-  background:rgba(10,10,15,0.97);border:1px solid rgba(240,185,11,0.4);
-  border-radius:10px;padding:9px 14px;font-size:0.82rem;color:#f0b90b;
-  font-weight:500;max-width:260px;display:none;
-  box-shadow:0 8px 28px rgba(0,0,0,0.6);
+  position:fixed;top:60px;right:18px;z-index:10000;
+  background:rgba(10,10,15,0.98);border:1px solid rgba(240,185,11,0.45);
+  border-radius:12px;padding:10px 16px;font-size:0.85rem;color:#f0b90b;
+  font-weight:500;max-width:280px;display:none;
+  box-shadow:0 8px 30px rgba(0,0,0,0.65);
 }
 .toast.show{display:block;animation:slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
 </style>
+
 
 
 <!-- ══ TOP BAR ══ -->
@@ -320,8 +315,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
     <!-- head / drag handle -->
     <div class="cart-head" id="cart-head">
-      <span class="cart-head-title">DHANI WIN TOOL</span>
-      <span class="cart-badge">PREDICTION TOOL</span>
+      <span class="cart-head-title">DHANI WIN</span>
+      <span class="cart-badge">v2.0</span>
       <div class="cart-x" onclick="toggleCart()">✕</div>
     </div>
 
@@ -330,30 +325,31 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 
       <!-- ─ LOGIN PANEL ─ -->
       <div id="p-login">
-        <div class="smsg">🔐 <strong>Login Now, Tool is waiting...</strong></div>
-        <div style="font-size:0.78rem;color:#a0a0c0;margin-bottom:10px;line-height:1.5">
+        <div class="smsg">🔐 <strong>Login to Start</strong></div>
+        <div style="font-size:0.8rem;color:#a0a0c0;margin-bottom:12px;line-height:1.6">
           The Dhani Win website is loading. Please log in, then click <strong style="color:#f0b90b">Home</strong> below.
         </div>
         <button onclick="goTo('login')" style="
-          width:100%;padding:11px;background:linear-gradient(135deg,#f0b90b,#c99a08);
+          width:100%;padding:12px;background:linear-gradient(135deg,#f0b90b,#c99a08);
           border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
-          font-size:0.78rem;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:6px;
+          font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:8px;
         ">GO TO LOGIN →</button>
       </div>
 
       <!-- ─ HOME PANEL ─ -->
       <div id="p-home" style="display:none">
-        <div class="smsg">✅ <strong>Login Done... Now use Wingo tool.</strong></div>
+        <div class="smsg">✅ <strong>Login Done!</strong> Now use Wingo tool.</div>
         <div class="stats-row">
           <div class="stat-box"><div class="stat-v" id="hw">0</div><div class="stat-l">Wins</div></div>
           <div class="stat-box"><div class="stat-v" id="hr">0</div><div class="stat-l">Rounds</div></div>
         </div>
         <button onclick="goTo('wingo')" style="
-          width:100%;padding:10px;background:rgba(240,185,11,0.1);border:1px solid rgba(240,185,11,0.3);
-          border-radius:10px;color:#f0b90b;font-family:'Orbitron',monospace;
-          font-size:0.78rem;font-weight:700;letter-spacing:2px;cursor:pointer;
+          width:100%;padding:12px;background:rgba(240,185,11,0.12);border:1px solid rgba(240,185,11,0.35);
+          border-radius:12px;color:#f0b90b;font-family:'Orbitron',monospace;
+          font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;
         ">OPEN WINGO →</button>
       </div>
+
 
       <!-- ─ WINGO PANEL ─ -->
       <div id="p-wingo" style="display:none">
@@ -369,7 +365,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
         </div>
         <div class="lvl-hint lv1" id="lvl-hint">Standard analysis — enter 10 trends</div>
 
-        <div class="smsg" id="wmsg">🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span></div>
+        <div class="smsg" id="wmsg">🎮 <strong>Wingo 1 min ready</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span></div>
 
         <!-- counter -->
         <div class="ctr-row">
@@ -409,9 +405,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
           <div class="ring"></div>
           <div class="loader-txt" id="ldr-txt">Running analysis...</div>
           <div class="algo-list">
-            <div class="ach" id="a1"><span class="dot"></span> First — pattern scan</div>
-            <div class="ach" id="a2"><span class="dot"></span> Second — momentum check</div>
-            <div class="ach" id="a3"><span class="dot"></span> Third — matrix confirm</div>
+            <div class="ach" id="a1"><span class="dot"></span> Algorithm 1 — Streak Detection</div>
+            <div class="ach" id="a2"><span class="dot"></span> Algorithm 2 — Recency Weight</div>
+            <div class="ach" id="a3"><span class="dot"></span> Algorithm 3 — Pattern Match</div>
           </div>
         </div>
 
@@ -420,7 +416,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
           <div class="res-lbl" id="res-lbl">NEXT PREDICTION</div>
           <div class="res-pred" id="rpred">BIG</div>
           <div class="res-conf">🎯 <span id="rconf">Analysing...</span></div>
-          <div class="res-q">Tell me, is it right?</div>
+          <div class="res-q">Was this prediction correct?</div>
           <div class="fb-row">
             <button class="btn-yes" onclick="fbYes()">✓ YES</button>
             <button class="btn-no" onclick="fbNo()">✗ NO</button>
@@ -445,13 +441,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:
 </div><!-- end cart -->
 
 
+
 <script>
-// ═══════════════════════════════════════════════════════
-//  DHANI WIN — 3-Level Win System Controller
-//  Level 1 → Normal prediction
-//  Level 2 → Deeper analysis after 1st loss
-//  Level 3 → MASTER result after 2nd loss (must win)
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+//  DHANI WIN — 3-Level Win System Controller v2.0
+//  Level 1 → Normal prediction (standard triple-algorithm consensus)
+//  Level 2 → Deeper analysis after 1st loss (enhanced momentum)
+//  Level 3 → MASTER result after 2nd loss (override logic)
+// ═══════════════════════════════════════════════════════════════════════════════
 
 const SITE_URLS = {
   login: 'https://dhaniwin0.com/login?type=0',
@@ -459,7 +456,7 @@ const SITE_URLS = {
   wingo: 'https://dhaniwin0.com/WinGo/WinGo_1M'
 };
 
-// ── State ────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────
 let trends       = [];
 let wins         = 0;
 let rounds       = 0;
@@ -467,25 +464,35 @@ let betLevel     = 1;          // 1, 2, or 3
 let lossStreak   = 0;          // consecutive losses in this prediction chain
 let prevWrong    = [];         // last wrong predictions e.g. ['BIG','BIG']
 let lastPred     = null;       // last shown prediction
+let sessionId    = 'sess_' + Date.now();
 
 const frame   = document.getElementById('site-frame');
 const cartEl  = document.getElementById('cart');
 const toastEl = document.getElementById('toast');
 
-// ── Level metadata ───────────────────────────────────────
+// ── Level metadata ───────────────────────────────────────────────────────────
 const LEVELS = {
-  1: { label:'BET 1',    cls:'lv1', hint:'Standard analysis — enter 10 trends',
-       loaderTxt:'Running standard analysis...',
-       retryHtml:'⚠️ <strong>Bet 1 wrong.</strong> Re-enter trends — Level 2 deeper analysis activates.<br/><span style="font-size:0.73rem;color:#f0b90b">↓ Enter trends again for BET 2</span>' },
-  2: { label:'BET 2',    cls:'lv2', hint:'Deeper analysis — momentum & history scan',
-       loaderTxt:'Running deeper Level 2 analysis...',
-       retryHtml:'⚠️ <strong>Bet 2 also wrong.</strong> Activating MASTER mode...<br/><span style="font-size:0.73rem;color:#ff5577">↓ Enter trends for BET 3 — MASTER RESULT 🔥</span>' },
-  3: { label:'BET 3 🔥', cls:'lv3', hint:'🔥 MASTER MODE — Maximum depth analysis',
-       loaderTxt:'🔥 Running MASTER Level 3 analysis...',
-       retryHtml:'' }  // level 3 result: full reset if wrong (rare)
+  1: { 
+    label:'BET 1', cls:'lv1', 
+    hint:'Standard analysis — enter 10 trends',
+    loaderTxt:'Running triple-algorithm analysis...',
+    retryHtml:'⚠️ <strong>Bet 1 wrong.</strong> Re-enter trends — Level 2 deeper analysis activates.<br/><span style="font-size:0.75rem;color:#f0b90b">↓ Enter trends again for BET 2</span>'
+  },
+  2: { 
+    label:'BET 2', cls:'lv2', 
+    hint:'Deeper analysis — momentum & history scan',
+    loaderTxt:'Running deeper Level 2 analysis...',
+    retryHtml:'⚠️ <strong>Bet 2 also wrong.</strong> Activating MASTER mode...<br/><span style="font-size:0.75rem;color:#ff5577">↓ Enter trends for BET 3 — MASTER RESULT 🔥</span>'
+  },
+  3: { 
+    label:'BET 3 🔥', cls:'lv3', 
+    hint:'🔥 MASTER MODE — Maximum depth analysis',
+    loaderTxt:'🔥 Running MASTER Level 3 analysis...',
+    retryHtml:''
+  }
 };
 
-// ── iframe navigation ────────────────────────────────────
+// ── iframe navigation ────────────────────────────────────────────────────────
 function goTo(page) {
   frame.src = SITE_URLS[page];
   showPanel(page);
@@ -497,21 +504,24 @@ function goTo(page) {
   document.getElementById('status-dot').style.background = page==='wingo' ? '#f0b90b' : '#00e676';
 }
 
-// ── Cart open/close ──────────────────────────────────────
+// ── Cart open/close ──────────────────────────────────────────────────────────
 function toggleCart() {
   const open = cartEl.classList.toggle('open');
   document.getElementById('cart-btn').textContent = open ? '✕' : '🎯';
 }
 
-// ── Panel switch ─────────────────────────────────────────
+// ── Panel switch ─────────────────────────────────────────────────────────────
 function showPanel(name) {
   ['login','home','wingo'].forEach(p => {
     document.getElementById('p-'+p).style.display = p===name ? 'block' : 'none';
     document.getElementById('cn-'+p).classList.toggle('active', p===name);
   });
 }
+</script>
 
-// ── Update level UI ──────────────────────────────────────
+
+<script>
+// ── Update level UI ──────────────────────────────────────────────────────────
 function updateLevelUI() {
   const meta = LEVELS[betLevel];
 
@@ -552,18 +562,18 @@ function updateLevelUI() {
 
   // Wingo status msg
   const msgs = {
-    1: '🎮 <strong>Wingo 1 min open now.</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>',
-    2: '🔍 <strong>BET 2 — Deeper analysis.</strong><br/><span style="font-size:0.78rem;color:#f0b90b">Re-enter the latest 10 trends</span>',
-    3: '🔥 <strong>BET 3 — MASTER MODE.</strong><br/><span style="font-size:0.78rem;color:#ff5577">Enter 10 trends — this is the final call</span>',
+    1: '🎮 <strong>Wingo 1 min ready</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>',
+    2: '🔍 <strong>BET 2 — Deeper analysis</strong><br/><span style="font-size:0.8rem;color:#f0b90b">Re-enter the latest 10 trends</span>',
+    3: '🔥 <strong>BET 3 — MASTER MODE</strong><br/><span style="font-size:0.8rem;color:#ff5577">Enter 10 trends — this is the final call</span>',
   };
   document.getElementById('wmsg').innerHTML = msgs[betLevel];
 }
 
-// ── Add trend ────────────────────────────────────────────
+// ── Add trend ────────────────────────────────────────────────────────────────
 function addTrend(type) {
   if (trends.length >= 10) return;
   const n = document.getElementById('tsel').value || (trends.length+1);
-  trends.push({type, number:n});
+  trends.push({type, number: parseInt(n)});
   document.getElementById('tsel').value = '';
 
   document.getElementById('tcnt').textContent = trends.length;
@@ -583,12 +593,12 @@ function addTrend(type) {
     document.getElementById('tin').style.pointerEvents = 'none';
     document.getElementById('wmsg').innerHTML = betLevel === 3
       ? '🔥 <strong>10 trends ready — MASTER analysis will fire!</strong>'
-      : '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.78rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
+      : '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
     toast(betLevel === 3 ? '🔥 MASTER MODE ready! Fire it!' : '10 trends ready! Hit Analyse ⚡');
   }
 }
 
-// ── Undo ─────────────────────────────────────────────────
+// ── Undo ─────────────────────────────────────────────────────────────────────
 function undoTrend() {
   if (!trends.length) return;
   trends.pop();
@@ -599,25 +609,29 @@ function undoTrend() {
   document.getElementById('banalyse').classList.remove('show');
   document.getElementById('tin').style.opacity = '1';
   document.getElementById('tin').style.pointerEvents = 'auto';
-  updateLevelUI(); // restore correct wmsg
+  updateLevelUI();
 }
+</script>
 
-// ── Start analysis ───────────────────────────────────────
+
+<script>
+// ── Start analysis ───────────────────────────────────────────────────────────
 function startAnalysis() {
   document.getElementById('banalyse').classList.remove('show');
   document.getElementById('res').classList.remove('show');
   document.getElementById('ldr').classList.add('on');
 
   // Animate algo checks (faster at level 3 = urgency feel)
-  const delays = betLevel === 3 ? [500,1000,1500] : [700,1500,2300];
+  const delays = betLevel === 3 ? [400,800,1200] : [600,1300,2000];
   setTimeout(()=>document.getElementById('a1').classList.add('ok'), delays[0]);
   setTimeout(()=>document.getElementById('a2').classList.add('ok'), delays[1]);
   setTimeout(()=>document.getElementById('a3').classList.add('ok'), delays[2]);
 
   const payload = {
     trends,
-    level:      betLevel,
-    prev_wrong: prevWrong
+    level: betLevel,
+    prev_wrong: prevWrong,
+    session_id: sessionId
   };
 
   fetch('Master-prediction-tool.php', {
@@ -625,21 +639,26 @@ function startAnalysis() {
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(payload)
   })
-  .then(r=>r.json())
-  .then(d => setTimeout(()=>showResult(d), delays[2] + 400))
-  .catch(()  => setTimeout(()=>showResult(localPredict(betLevel)), delays[2] + 400));
+  .then(r => r.json())
+  .then(d => setTimeout(()=>showResult(d), delays[2] + 300))
+  .catch(err => {
+    console.error('API Error:', err);
+    setTimeout(()=>showResult(localPredict(betLevel)), delays[2] + 300);
+  });
 }
 
-// ── Local fallback with level awareness ──────────────────
+// ── Local fallback with level awareness ──────────────────────────────────────
 function localPredict(level) {
   const types = trends.map(t => t.type);
-  const n     = types.length;
-  const last  = types[n-1];
-  const opp   = last === 'BIG' ? 'Small' : 'BIG';
+  const n = types.length;
+  const last = types[n-1];
+  const opp = last === 'BIG' ? 'Small' : 'BIG';
 
+  // Count trailing streak
   let streak = 0;
   for (let i = n-1; i >= 0; i--) { if (types[i]===last) streak++; else break; }
 
+  // Weighted score
   let wBig=0, wSml=0;
   types.forEach((t,i)=>{ const w=i+1; t==='BIG'?wBig+=w:wSml+=w; });
 
@@ -649,30 +668,32 @@ function localPredict(level) {
     // Master: if both previous were same wrong side → bet opposite
     const w1 = prevWrong[prevWrong.length-2];
     const w2 = prevWrong[prevWrong.length-1];
-    pred = (w1===w2) ? (w1==='BIG'?'Small':'BIG')
-                     : (streak>=2 ? opp : (wBig>=wSml?'BIG':'Small'));
-    conf = 78;
+    pred = (w1===w2) ? (w1==='BIG'?'Small':'BIG') : (streak>=2 ? opp : (wBig>=wSml?'BIG':'Small'));
+    conf = 82;
   } else if (level === 2) {
     // Level 2: use last-5 momentum
     const last5 = types.slice(-5);
-    const l5b   = last5.filter(t=>t==='BIG').length;
+    const l5b = last5.filter(t=>t==='BIG').length;
     pred = l5b >= 3 ? 'BIG' : 'Small';
-    conf = 60 + Math.abs(l5b - 2.5) * 5;
+    conf = 65 + Math.abs(l5b - 2.5) * 6;
   } else {
     // Level 1 normal
     pred = streak >= 3 ? opp : (wBig>=wSml?'BIG':'Small');
-    conf = streak >= 3 ? Math.min(60+streak*5,82) : Math.round(50+(Math.max(wBig,wSml)/(wBig+wSml)-0.5)*70);
+    conf = streak >= 3 ? Math.min(60+streak*5,82) : Math.round(50+(Math.max(wBig,wSml)/(wBig+wSml)-0.5)*60);
   }
 
   return {
     prediction: pred,
-    confidence: Math.min(Math.max(Math.round(conf), 52), 85),
-    level, level_label: LEVELS[level].label,
-    level_color: level===3?'#ff1744':level===2?'#f0b90b':'#00e676'
+    confidence: Math.min(Math.max(Math.round(conf), 55), 85),
+    level, 
+    level_label: LEVELS[level].label,
+    level_color: level===3?'#ff1744':level===2?'#f0b90b':'#00e676',
+    agreed: false,
+    note: 'Local fallback prediction'
   };
 }
 
-// ── Show result ──────────────────────────────────────────
+// ── Show result ──────────────────────────────────────────────────────────────
 function showResult(data) {
   document.getElementById('ldr').classList.remove('on');
   ['a1','a2','a3'].forEach(id=>document.getElementById(id).classList.remove('ok'));
@@ -697,8 +718,11 @@ function showResult(data) {
   rounds++;
   updateStats();
 }
+</script>
 
-// ── Feedback YES ─────────────────────────────────────────
+
+<script>
+// ── Feedback YES ─────────────────────────────────────────────────────────────
 function fbYes() {
   wins++;
   lossStreak = 0;
@@ -708,9 +732,12 @@ function fbYes() {
   toast('🎉 Win! Resetting to BET 1...');
   resetWingo(true);
   updateLevelUI();
+  
+  // Log result
+  logResult(lastPred, true);
 }
 
-// ── Feedback NO ──────────────────────────────────────────
+// ── Feedback NO ──────────────────────────────────────────────────────────────
 function fbNo() {
   lossStreak++;
 
@@ -718,10 +745,12 @@ function fbNo() {
   if (lastPred) prevWrong.push(lastPred);
 
   document.getElementById('res').classList.remove('show');
+  
+  // Log result
+  logResult(lastPred, false);
 
   if (betLevel < 3) {
     betLevel++;         // escalate to next level
-    const meta = LEVELS[betLevel];
     document.getElementById('rtry').innerHTML = LEVELS[betLevel-1].retryHtml;
     document.getElementById('rtry').classList.add('show');
     toast(betLevel===3 ? '🔥 BET 3 MASTER MODE activated!' : `⚡ BET ${betLevel} — deeper analysis`);
@@ -732,7 +761,7 @@ function fbNo() {
     betLevel   = 1;
     lossStreak = 0;
     prevWrong  = [];
-    document.getElementById('rtry').innerHTML = '🔄 <strong>Complete reset — enter fresh 10 trends.</strong><br/><span style="font-size:0.73rem;color:#a0a0c0">Starting from BET 1 again</span>';
+    document.getElementById('rtry').innerHTML = '🔄 <strong>Complete reset — enter fresh 10 trends.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Starting from BET 1 again</span>';
     document.getElementById('rtry').classList.add('show');
     toast('🔄 Full reset — re-enter new trends');
     resetWingo(false);
@@ -740,7 +769,24 @@ function fbNo() {
   }
 }
 
-// ── Reset wingo panel ────────────────────────────────────
+// ── Log result to server ─────────────────────────────────────────────────────
+function logResult(pred, correct) {
+  try {
+    fetch('get-data.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        action: 'log',
+        prediction: pred,
+        confidence: 75,
+        correct: correct,
+        level: betLevel
+      })
+    }).catch(() => {});
+  } catch(e) {}
+}
+
+// ── Reset wingo panel ────────────────────────────────────────────────────────
 function resetWingo(fullReset) {
   trends = [];
   document.getElementById('tcnt').textContent = '0';
@@ -756,27 +802,31 @@ function resetWingo(fullReset) {
   }
 }
 
-// ── Stats ────────────────────────────────────────────────
+// ── Stats ────────────────────────────────────────────────────────────────────
 function updateStats() {
   document.getElementById('hw').textContent = wins;
   document.getElementById('hr').textContent = rounds;
 }
 
-// ── Toast ────────────────────────────────────────────────
+// ── Toast ────────────────────────────────────────────────────────────────────
 let toastT;
 function toast(msg) {
   toastEl.textContent = msg;
   toastEl.classList.add('show');
   clearTimeout(toastT);
-  toastT = setTimeout(()=>toastEl.classList.remove('show'), 3400);
+  toastT = setTimeout(()=>toastEl.classList.remove('show'), 3500);
 }
+</script>
 
-// ═══════════════════════════════════════════════════════
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
 //  DRAG — cart widget
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
 (()=>{
   const c=document.getElementById('cart'), h=document.getElementById('cart-head');
   let drag=false, sx,sy,ox,oy;
+  
   h.addEventListener('mousedown', e=>{
     drag=true; sx=e.clientX; sy=e.clientY;
     const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
@@ -784,12 +834,14 @@ function toast(msg) {
     document.addEventListener('mousemove',mv);
     document.addEventListener('mouseup',up);
   });
+  
   h.addEventListener('touchstart', e=>{
     drag=true; const t=e.touches[0]; sx=t.clientX; sy=t.clientY;
     const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
     document.addEventListener('touchmove',mv,{passive:false});
     document.addEventListener('touchend',up);
   },{passive:true});
+  
   function mv(e){
     if(!drag)return; if(e.cancelable)e.preventDefault();
     const t=e.touches?e.touches[0]:e;
@@ -799,6 +851,7 @@ function toast(msg) {
     c.style.left=nx+'px'; c.style.top=ny+'px';
     c.style.bottom='auto'; c.style.right='auto';
   }
+  
   function up(){
     drag=false;
     document.removeEventListener('mousemove',mv);
@@ -808,9 +861,16 @@ function toast(msg) {
   }
 })();
 
-// ── Init ─────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────────────
 showPanel('login');
 updateLevelUI();
+
+// Auto-open cart after 2 seconds
+setTimeout(() => {
+  if (!cartEl.classList.contains('open')) {
+    toggleCart();
+  }
+}, 2000);
 </script>
 </body>
 </html>
