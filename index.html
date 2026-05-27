@@ -1,876 +1,1100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DHANI WIN — Prediction Tool</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="UI-look.css"/>
-  <link rel="stylesheet" href="get-accurate-result.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="COIN LAB — A probability laboratory that proves no algorithm can predict random 50/50 outcomes. Educational, honest, math-driven." />
+<title>COIN LAB — Random Sequence Laboratory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
 <style>
-/* ── RESET & BASE ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:'Rajdhani',sans-serif}
+/* ═══════════════════════════════════════════════════════════════════════
+   COIN LAB — Random Sequence Laboratory
+   A single-file educational tool that PROVES (not refutes) that
+   pattern analysis cannot beat a fair 50/50 process.
+═══════════════════════════════════════════════════════════════════════ */
 
-/* ── TOP BAR ── */
-#topbar{
-  position:fixed;top:0;left:0;right:0;height:48px;z-index:9000;
-  background:rgba(10,10,15,0.98);
-  border-bottom:1px solid rgba(240,185,11,0.3);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 16px;gap:10px;
+:root {
+  --bg-0: #07070d;
+  --bg-1: #0f0f1a;
+  --bg-2: #14141f;
+  --bg-3: #1c1c2a;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --txt-1: #ffffff;
+  --txt-2: #b8b8d0;
+  --txt-3: #6e6e8a;
+  --gold: #f0b90b;
+  --gold-2: #c99a08;
+  --green: #00e676;
+  --red: #ff4d6d;
+  --blue: #4dabf7;
+  --purple: #b388ff;
+  --warn: #ffb74d;
 }
-#topbar .logo{
-  font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:900;
-  color:#f0b90b;letter-spacing:2px;white-space:nowrap;
-  text-shadow:0 0 14px rgba(240,185,11,0.5);
+
+* , *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100%; }
+body {
+  font-family: 'Rajdhani', system-ui, sans-serif;
+  background: var(--bg-0);
+  color: var(--txt-1);
+  line-height: 1.5;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(240, 185, 11, 0.10), transparent 38%),
+    radial-gradient(circle at 88% 82%, rgba(77, 171, 247, 0.08), transparent 42%);
+  background-attachment: fixed;
 }
-#topbar .logo span{color:#fff}
-.nav-tabs{display:flex;gap:6px;flex:1;justify-content:center}
-.nav-tab{
-  padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.1);
-  background:rgba(255,255,255,0.04);color:#a0a0c0;
-  font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:600;
-  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ── Top bar ─────────────────────────────────────────────────────── */
+#topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(7, 7, 13, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px;
 }
-.nav-tab:hover,.nav-tab.active{
-  background:rgba(240,185,11,0.15);border-color:rgba(240,185,11,0.4);color:#f0b90b;
+.logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.05rem; font-weight: 900; letter-spacing: 2.5px;
+  color: var(--gold);
+  text-shadow: 0 0 18px rgba(240, 185, 11, 0.45);
+  white-space: nowrap;
 }
-#status-pill{
-  display:flex;align-items:center;gap:6px;
-  background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-  border-radius:20px;padding:4px 12px;white-space:nowrap;
+.logo span { color: #fff; }
+.nav-tabs { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; flex: 1; }
+.nav-tab {
+  padding: 6px 14px; border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--txt-2);
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.18s;
 }
-#status-dot{width:8px;height:8px;border-radius:50%;background:#00e676;
-  animation:blink 2s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-#status-text{font-size:0.75rem;color:#00e676;font-weight:600}
+.nav-tab:hover { color: var(--gold); border-color: rgba(240, 185, 11, 0.4); }
+
+.honest-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid rgba(0, 230, 118, 0.32);
+  color: var(--green);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+  white-space: nowrap;
+}
+.honest-pill::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+}
+
+/* ── Disclaimer banner ───────────────────────────────────────────── */
+.disclaimer {
+  background: linear-gradient(90deg, rgba(255, 183, 77, 0.10), rgba(255, 77, 109, 0.06));
+  border-bottom: 1px solid rgba(255, 183, 77, 0.25);
+  padding: 10px 20px;
+  font-size: 0.82rem;
+  color: var(--warn);
+  text-align: center;
+}
+.disclaimer strong { color: #ffd54f; }
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 20px 80px;
+}
+section { scroll-margin-top: 90px; }
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.section-h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem; font-weight: 700;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+.hero {
+  margin-top: 18px; margin-bottom: 56px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+@media (max-width: 880px) { .hero { grid-template-columns: 1fr; } }
+
+.hero-left h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+.hero-left h1 .accent {
+  background: linear-gradient(135deg, var(--gold), #ffd54f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-left p {
+  color: var(--txt-2);
+  font-size: 1.05rem;
+  margin-bottom: 14px;
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.92rem; font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.18s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  color: #0a0a0f;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(240, 185, 11, 0.4); }
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--line-2);
+  color: var(--txt-1);
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+.truth-card {
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.truth-card::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(240, 185, 11, 0.10), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(77, 171, 247, 0.08), transparent 55%);
+  pointer-events: none;
+}
+.truth-card > * { position: relative; }
+.truth-card .label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 2.5px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.truth-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.truth-row:last-child { border-bottom: none; }
+.truth-row .k { color: var(--txt-3); font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase; }
+.truth-row .v { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 600; color: #fff; }
+.truth-row .v.green { color: var(--green); }
+.truth-row .v.red { color: var(--red); }
+.truth-foot {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line);
+  font-size: 0.78rem; color: var(--txt-3);
+}
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+.card {
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+}
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 880px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+/* ── Lab ─────────────────────────────────────────────────────────── */
+.lab-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+@media (max-width: 980px) { .lab-grid { grid-template-columns: 1fr; } }
+
+.lab-h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem; font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 14px;
+  color: var(--txt-1);
+}
+.muted { color: var(--txt-3); font-size: 0.85rem; }
+
+/* sequence input */
+.seq-area {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--line-2);
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 96px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  align-content: flex-start;
+  margin-bottom: 14px;
+}
+.seq-area:empty::before {
+  content: 'Your sequence will appear here. Start by tapping BIG or SMALL below.';
+  color: var(--txt-3);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+.chip {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 1px;
+  padding: 5px 11px;
+  border-radius: 18px;
+  border: 1px solid;
+  animation: pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.chip.B { background: rgba(0, 230, 118, 0.12); border-color: rgba(0, 230, 118, 0.4); color: var(--green); }
+.chip.S { background: rgba(255, 77, 109, 0.12); border-color: rgba(255, 77, 109, 0.4); color: var(--red); }
+@keyframes pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.tbtn {
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px;
+  transition: all 0.16s;
+}
+.tbtn.B { background: rgba(0, 230, 118, 0.08); border-color: rgba(0, 230, 118, 0.35); color: var(--green); }
+.tbtn.B:hover { background: rgba(0, 230, 118, 0.18); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 230, 118, 0.25); }
+.tbtn.S { background: rgba(255, 77, 109, 0.08); border-color: rgba(255, 77, 109, 0.35); color: var(--red); }
+.tbtn.S:hover { background: rgba(255, 77, 109, 0.18); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255, 77, 109, 0.25); }
+
+.util-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.mini-btn {
+  flex: 1;
+  min-width: 90px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  color: var(--txt-2);
+  font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.16s;
+}
+.mini-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* algorithm cards */
+.algo-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  transition: border-color 0.18s;
+}
+.algo-card.active { border-color: rgba(240, 185, 11, 0.5); box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.06); }
+.algo-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; }
+.algo-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--txt-1);
+}
+.algo-name .num {
+  display: inline-block;
+  font-size: 0.65rem;
+  background: rgba(240, 185, 11, 0.15);
+  color: var(--gold);
+  padding: 2px 7px;
+  border-radius: 8px;
+  margin-right: 8px;
+}
+.algo-pred {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem; font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 18px;
+  letter-spacing: 1px;
+}
+.algo-pred.B { background: rgba(0, 230, 118, 0.14); color: var(--green); border: 1px solid rgba(0, 230, 118, 0.4); }
+.algo-pred.S { background: rgba(255, 77, 109, 0.14); color: var(--red); border: 1px solid rgba(255, 77, 109, 0.4); }
+.algo-pred.none { background: rgba(255, 255, 255, 0.05); color: var(--txt-3); border: 1px solid var(--line-2); }
+
+.algo-desc { font-size: 0.78rem; color: var(--txt-3); margin-bottom: 10px; line-height: 1.45; }
+.algo-stats { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.78rem; }
+.algo-stats .stat { color: var(--txt-2); }
+.algo-stats .stat b { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 0.95rem; margin-right: 3px; }
+.acc-bar {
+  flex: 1; min-width: 100px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.acc-bar::after {
+  content: ''; position: absolute;
+  left: 50%; top: 0; bottom: 0; width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.acc-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
+  width: 50%;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 4px;
+}
+
+.outcome-row {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.outcome-q {
+  font-size: 0.85rem; color: var(--txt-2); margin-bottom: 10px;
+  text-align: center;
+}
+.outcome-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.out-btn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.78rem; font-weight: 700; letter-spacing: 1px;
+  transition: all 0.18s;
+}
+.out-btn.B { background: rgba(0, 230, 118, 0.08); border-color: rgba(0, 230, 118, 0.35); color: var(--green); }
+.out-btn.B:hover { background: rgba(0, 230, 118, 0.2); }
+.out-btn.S { background: rgba(255, 77, 109, 0.08); border-color: rgba(255, 77, 109, 0.35); color: var(--red); }
+.out-btn.S:hover { background: rgba(255, 77, 109, 0.2); }
+
+/* ── Big stats ───────────────────────────────────────────────────── */
+.bigstat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+@media (max-width: 880px) { .bigstat-grid { grid-template-columns: repeat(2, 1fr); } }
+.bigstat {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 14px;
+  text-align: center;
+}
+.bigstat .v {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.7rem; font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.bigstat .l {
+  font-size: 0.72rem;
+  color: var(--txt-3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* convergence chart */
+.chart-wrap {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 4px;
+}
+#chart {
+  width: 100%; height: 220px; display: block;
+}
+.chart-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--txt-2);
+}
+.chart-legend .key { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend .swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+/* ── Education ───────────────────────────────────────────────────── */
+.edu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 880px) { .edu-grid { grid-template-columns: 1fr; } }
+.edu-card {
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+}
+.edu-card h3 {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.95rem; font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+.edu-card .ic { font-size: 1.4rem; margin-bottom: 8px; }
+.edu-card p { color: var(--txt-2); font-size: 0.92rem; }
+.edu-card.warn { border-color: rgba(255, 77, 109, 0.3); }
+.edu-card.warn h3 { color: var(--red); }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 22px 20px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--txt-3);
+}
+footer .row { margin-bottom: 6px; }
+footer a { margin: 0 8px; color: var(--txt-2); }
+
+/* utility */
+.section-spacer { height: 56px; }
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag {
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--txt-2);
+  border: 1px solid var(--line);
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-1);
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  color: var(--txt-1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s;
+  z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
+<!-- ═══ Top bar ═══ -->
+<header id="topbar">
+  <div class="logo">COIN<span>LAB</span></div>
+  <nav class="nav-tabs">
+    <a class="nav-tab" href="#hero">About</a>
+    <a class="nav-tab" href="#lab">The Lab</a>
+    <a class="nav-tab" href="#stats">Stats</a>
+    <a class="nav-tab" href="#learn">Learn</a>
+  </nav>
+  <span class="honest-pill">HONEST MATH</span>
+</header>
 
-<style>
-/* ── IFRAME ── */
-#site-frame{
-  position:fixed;top:48px;left:0;right:0;bottom:0;
-  width:100%;height:calc(100vh - 48px);
-  border:none;background:#111;
-}
-
-/* ── CART TOGGLE BTN ── */
-#cart-btn{
-  position:fixed;bottom:24px;right:24px;z-index:9999;
-  width:60px;height:60px;border-radius:50%;border:none;
-  background:linear-gradient(135deg,#f0b90b,#c99a08);
-  font-size:1.6rem;cursor:pointer;
-  box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0.4);
-  animation:pulse-btn 2.5s infinite;transition:transform 0.2s;
-  display:flex;align-items:center;justify-content:center;
-}
-#cart-btn:hover{transform:scale(1.1)}
-@keyframes pulse-btn{
-  0%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0.35)}
-  50%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 14px rgba(240,185,11,0)}
-  100%{box-shadow:0 4px 20px rgba(240,185,11,0.55),0 0 0 0 rgba(240,185,11,0)}
-}
-
-/* ── CART WIDGET ── */
-#cart{
-  position:fixed;bottom:94px;right:24px;z-index:9998;
-  width:340px;display:none;
-  filter:drop-shadow(0 12px 40px rgba(0,0,0,0.85));
-}
-#cart.open{display:block;animation:cart-pop 0.35s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes cart-pop{from{opacity:0;transform:scale(0.6) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
-
-.cart-box{
-  background:linear-gradient(160deg,#0f0f1a,#13131f);
-  border:1px solid rgba(240,185,11,0.3);border-radius:18px;overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-/* cart header */
-.cart-head{
-  background:linear-gradient(135deg,rgba(240,185,11,0.12),rgba(240,185,11,0.04));
-  border-bottom:1px solid rgba(240,185,11,0.18);
-  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
-  cursor:grab;
-}
-.cart-head:active{cursor:grabbing}
-.cart-head-title{font-family:'Orbitron',monospace;font-size:0.9rem;font-weight:700;color:#f0b90b;letter-spacing:1.5px}
-.cart-badge{
-  font-size:0.68rem;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.3);
-  border-radius:20px;padding:3px 10px;color:#00e676;font-weight:700;letter-spacing:1px;
-}
-.cart-x{
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);
-  border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;
-  color:#a0a0c0;cursor:pointer;font-size:1rem;transition:all 0.2s;
-}
-.cart-x:hover{background:rgba(255,23,68,0.2);border-color:rgba(255,23,68,0.4);color:#ff1744}
-
-/* cart scroll body */
-.cart-scroll{max-height:420px;overflow-y:auto;padding:14px 16px;scrollbar-width:thin;scrollbar-color:rgba(240,185,11,0.25) transparent}
-.cart-scroll::-webkit-scrollbar{width:4px}
-.cart-scroll::-webkit-scrollbar-thumb{background:rgba(240,185,11,0.25);border-radius:2px}
-</style>
-
-
-<style>
-/* ── STATUS MSG ── */
-.smsg{
-  background:rgba(240,185,11,0.08);border:1px solid rgba(240,185,11,0.2);
-  border-radius:12px;padding:12px 14px;font-size:0.88rem;color:#f0b90b;
-  font-weight:500;line-height:1.5;margin-bottom:12px;position:relative;overflow:hidden;
-}
-.smsg::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#f0b90b;border-radius:3px 0 0 3px}
-
-/* ── COUNTER ROW ── */
-.ctr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.ctr-lbl{font-size:0.75rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px}
-.ctr-val{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:700;color:#f0b90b}
-.ctr-val small{font-size:0.85rem;color:#5a5a7a}
-
-/* progress bar */
-.pbar{background:rgba(255,255,255,0.05);border-radius:8px;height:6px;margin-bottom:12px;overflow:hidden}
-.pbar-fill{height:100%;background:linear-gradient(90deg,#f0b90b,#00e676);border-radius:8px;
-  transition:width 0.35s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 0 10px rgba(240,185,11,0.5)}
-
-/* bubbles */
-.bubbles{display:flex;flex-wrap:wrap;gap:6px;min-height:36px;margin-bottom:12px}
-.bub{padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;letter-spacing:1px;animation:bpop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes bpop{from{opacity:0;transform:scale(0.2)}to{opacity:1;transform:scale(1)}}
-.bub.big{background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.35);color:#00e676}
-.bub.sml{background:rgba(255,23,68,0.12);border:1px solid rgba(255,23,68,0.35);color:#ff5577}
-
-/* trend input */
-.tin-lbl{font-size:0.72rem;color:#a0a0c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.tbtn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.tbtn{
-  padding:12px;border-radius:12px;border:2px solid transparent;
-  font-family:'Orbitron',monospace;font-size:0.85rem;font-weight:700;
-  cursor:pointer;transition:all 0.18s;letter-spacing:1px;
-}
-.tbtn.big{background:rgba(0,230,118,0.08);border-color:rgba(0,230,118,0.3);color:#00e676}
-.tbtn.big:hover{background:rgba(0,230,118,0.2);border-color:#00e676;box-shadow:0 0 16px rgba(0,230,118,0.3);transform:translateY(-2px)}
-.tbtn.sml{background:rgba(255,23,68,0.08);border-color:rgba(255,23,68,0.3);color:#ff5577}
-.tbtn.sml:hover{background:rgba(255,23,68,0.2);border-color:#ff1744;box-shadow:0 0 16px rgba(255,23,68,0.3);transform:translateY(-2px)}
-
-/* number select + undo */
-.sel-row{display:flex;gap:8px;margin-bottom:10px}
-.tsel{
-  flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
-  border-radius:10px;padding:8px 12px;color:#fff;font-family:'Rajdhani',sans-serif;
-  font-size:0.9rem;outline:none;cursor:pointer;
-}
-.tsel:focus{border-color:rgba(240,185,11,0.4)}
-.tsel option{background:#13131f}
-.undo-btn{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
-  border-radius:10px;padding:8px 12px;color:#a0a0c0;cursor:pointer;
-  font-size:1.1rem;transition:all 0.18s;
-}
-.undo-btn:hover{border-color:rgba(255,23,68,0.4);color:#ff5577}
-</style>
-
-
-<style>
-/* analyse button */
-.btn-analyse{
-  width:100%;padding:13px;background:linear-gradient(135deg,#f0b90b,#c99a08);
-  border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
-  font-size:0.85rem;font-weight:700;letter-spacing:2px;cursor:pointer;
-  transition:all 0.25s;display:none;margin-top:6px;
-}
-.btn-analyse.show{display:block;animation:fadeup 0.4s ease}
-.btn-analyse:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(240,185,11,0.45)}
-@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-/* loader */
-.loader{display:none;flex-direction:column;align-items:center;padding:20px 12px;gap:10px}
-.loader.on{display:flex}
-.ring{width:50px;height:50px;border:3px solid rgba(240,185,11,0.15);border-top-color:#f0b90b;border-radius:50%;animation:spin 0.75s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-txt{font-size:0.8rem;color:#a0a0c0;text-align:center}
-.algo-list{width:100%;display:flex;flex-direction:column;gap:5px}
-.ach{display:flex;align-items:center;gap:8px;font-size:0.75rem;color:#5a5a7a;transition:color 0.3s}
-.ach.ok{color:#00e676}
-.ach .dot{width:6px;height:6px;border-radius:50%;background:#5a5a7a;flex-shrink:0;transition:all 0.3s}
-.ach.ok .dot{background:#00e676;box-shadow:0 0 8px rgba(0,230,118,0.6)}
-
-/* result */
-.result{display:none;flex-direction:column;align-items:center;gap:12px;padding:6px 0}
-.result.show{display:flex;animation:fadeup 0.45s cubic-bezier(0.34,1.56,0.64,1)}
-.res-lbl{font-size:0.72rem;color:#a0a0c0;letter-spacing:2px;text-transform:uppercase}
-.res-pred{
-  font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:900;
-  letter-spacing:3px;padding:10px 30px;border-radius:14px;text-align:center;
-}
-.res-pred.big{color:#00e676;background:rgba(0,230,118,0.12);border:2px solid rgba(0,230,118,0.45);
-  box-shadow:0 0 30px rgba(0,230,118,0.25);text-shadow:0 0 20px rgba(0,230,118,0.5)}
-.res-pred.sml{color:#ff5577;background:rgba(255,23,68,0.12);border:2px solid rgba(255,23,68,0.45);
-  box-shadow:0 0 30px rgba(255,23,68,0.25);text-shadow:0 0 20px rgba(255,23,68,0.5)}
-.res-conf{display:flex;align-items:center;gap:6px;font-size:0.88rem;color:#f0b90b;font-weight:600}
-.res-q{font-size:0.9rem;color:#a0a0c0;text-align:center;font-weight:500}
-.fb-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
-.btn-yes{padding:10px;background:rgba(0,230,118,0.1);border:2px solid rgba(0,230,118,0.4);
-  border-radius:10px;color:#00e676;font-family:'Orbitron',monospace;font-size:0.8rem;
-  font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
-.btn-yes:hover{background:rgba(0,230,118,0.22);border-color:#00e676;box-shadow:0 0 15px rgba(0,230,118,0.35)}
-.btn-no{padding:10px;background:rgba(255,23,68,0.08);border:2px solid rgba(255,23,68,0.35);
-  border-radius:10px;color:#ff5577;font-family:'Orbitron',monospace;font-size:0.8rem;
-  font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px}
-.btn-no:hover{background:rgba(255,23,68,0.2);border-color:#ff1744;box-shadow:0 0 15px rgba(255,23,68,0.35)}
-
-/* retry */
-.retry{display:none;background:rgba(213,0,249,0.08);border:1px solid rgba(213,0,249,0.3);
-  border-radius:12px;padding:14px;text-align:center;font-size:0.85rem;color:#e040fb;line-height:1.6;font-weight:500}
-.retry.show{display:block;animation:fadeup 0.4s ease}
-</style>
-
-
-<style>
-/* ── LEVEL BADGE ── */
-.level-badge{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.lvl-dots{display:flex;gap:6px}
-.lvl-dot{width:30px;height:7px;border-radius:4px;background:rgba(255,255,255,0.08);transition:all 0.3s}
-.lvl-dot.l1-on{background:#00e676;box-shadow:0 0 10px rgba(0,230,118,0.6)}
-.lvl-dot.l2-on{background:#f0b90b;box-shadow:0 0 10px rgba(240,185,11,0.6)}
-.lvl-dot.l3-on{background:#ff1744;box-shadow:0 0 12px rgba(255,23,68,0.7)}
-.lvl-label{font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:1px;border-radius:20px;padding:4px 12px}
-.lvl-label.lv1{background:rgba(0,230,118,0.12);color:#00e676;border:1px solid rgba(0,230,118,0.35)}
-.lvl-label.lv2{background:rgba(240,185,11,0.12);color:#f0b90b;border:1px solid rgba(240,185,11,0.35)}
-.lvl-label.lv3{background:rgba(255,23,68,0.15);color:#ff1744;border:1px solid rgba(255,23,68,0.45);animation:pulse-red 1.5s infinite}
-@keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(255,23,68,0)}50%{box-shadow:0 0 0 8px rgba(255,23,68,0)}}
-
-/* level hint below status */
-.lvl-hint{font-size:0.75rem;color:#5a5a7a;text-align:center;margin-bottom:10px;line-height:1.5}
-.lvl-hint.lv2{color:#f0b90b}
-.lvl-hint.lv3{color:#ff5577;font-weight:600}
-
-/* stats row */
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.stat-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:10px;text-align:center}
-.stat-v{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:700;color:#f0b90b}
-.stat-l{font-size:0.65rem;color:#5a5a7a;text-transform:uppercase;letter-spacing:1px}
-
-/* cart nav */
-.cart-nav{border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:5px;padding:10px 12px;background:rgba(0,0,0,0.2)}
-.cnav{
-  flex:1;padding:8px 5px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);
-  background:rgba(255,255,255,0.03);color:#a0a0c0;
-  font-family:'Rajdhani',sans-serif;font-size:0.75rem;font-weight:600;
-  cursor:pointer;transition:all 0.2s;text-align:center;display:flex;
-  flex-direction:column;align-items:center;gap:3px;
-}
-.cnav .ni{font-size:1rem}
-.cnav:hover,.cnav.active{background:rgba(240,185,11,0.12);border-color:rgba(240,185,11,0.35);color:#f0b90b}
-
-/* toast */
-.toast{
-  position:fixed;top:60px;right:18px;z-index:10000;
-  background:rgba(10,10,15,0.98);border:1px solid rgba(240,185,11,0.45);
-  border-radius:12px;padding:10px 16px;font-size:0.85rem;color:#f0b90b;
-  font-weight:500;max-width:280px;display:none;
-  box-shadow:0 8px 30px rgba(0,0,0,0.65);
-}
-.toast.show{display:block;animation:slideIn 0.35s cubic-bezier(0.34,1.56,0.64,1)}
-@keyframes slideIn{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
-</style>
-
-
-
-<!-- ══ TOP BAR ══ -->
-<div id="topbar">
-  <div class="logo">DHANI<span>WIN</span></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="goTo('login')" id="tab-login">🔐 Login</button>
-    <button class="nav-tab" onclick="goTo('home')" id="tab-home">🏠 Home</button>
-    <button class="nav-tab" onclick="goTo('wingo')" id="tab-wingo">🎯 Wingo</button>
-  </div>
-  <div id="status-pill">
-    <div id="status-dot"></div>
-    <span id="status-text">Waiting...</span>
-  </div>
+<div class="disclaimer">
+  <strong>Educational tool only.</strong>
+  This site does not predict any real betting platform. No algorithm can predict a fair 50/50 outcome — and we will prove it to you, live, with real numbers.
 </div>
 
-<!-- ══ DHANI WIN SITE in IFRAME ══ -->
-<iframe id="site-frame"
-  src="https://dhaniwin0.com/login?type=0"
-  allow="fullscreen"
-  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-></iframe>
+<main>
 
-<!-- ══ TOAST ══ -->
+  <!-- ═══ Hero ═══ -->
+  <section id="hero" class="hero">
+    <div class="hero-left">
+      <div class="section-title">Random Sequence Laboratory</div>
+      <h1>Can math beat a <span class="accent">coin flip?</span></h1>
+      <p>
+        COIN LAB runs three real statistical algorithms — Bayesian frequency,
+        a Markov chain, and a gambler's-fallacy bot — on any BIG / SMALL
+        sequence you give it. It tracks each algorithm's hit rate live and shows
+        you exactly what mathematics already proves: on a fair 50/50 process,
+        every algorithm converges to <b>50% accuracy</b> over time.
+      </p>
+      <p class="muted">
+        Use this to learn, to teach, or to convince a friend that "prediction tools"
+        for color games and similar 50/50 platforms are not, and cannot be, real.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#lab">Open the Lab →</a>
+        <a class="btn btn-ghost" href="#learn">Why it can't work</a>
+      </div>
+      <div class="tag-row">
+        <span class="tag">No tracking</span>
+        <span class="tag">No backend</span>
+        <span class="tag">Runs in your browser</span>
+        <span class="tag">Open math</span>
+      </div>
+    </div>
+
+    <aside class="truth-card">
+      <div class="label">★ LIVE TRUTH METER</div>
+      <div class="truth-row">
+        <span class="k">Total predictions</span>
+        <span class="v" id="t-total">0</span>
+      </div>
+      <div class="truth-row">
+        <span class="k">Correct</span>
+        <span class="v green" id="t-correct">0</span>
+      </div>
+      <div class="truth-row">
+        <span class="k">Wrong</span>
+        <span class="v red" id="t-wrong">0</span>
+      </div>
+      <div class="truth-row">
+        <span class="k">Combined hit rate</span>
+        <span class="v" id="t-rate">—</span>
+      </div>
+      <div class="truth-foot">
+        Theoretical hit rate on a fair 50/50 process: <b style="color:#fff">50.00%</b>.
+        With enough rounds, the number above always trends here.
+      </div>
+    </aside>
+  </section>
+
+  <!-- ═══ The Lab ═══ -->
+  <section id="lab">
+    <div class="section-title">The Lab</div>
+    <h2 class="section-h2">Run the experiment yourself</h2>
+
+    <div class="lab-grid">
+
+      <!-- Left: input -->
+      <div class="card">
+        <div class="lab-h3">1. Build a sequence</div>
+        <p class="muted" style="margin-bottom:12px">
+          Tap to add. Order is left → right (oldest → newest). Min 3 to predict.
+        </p>
+
+        <div class="seq-area" id="seq"></div>
+
+        <div class="btn-row">
+          <button class="tbtn B" id="btn-add-B">＋ BIG</button>
+          <button class="tbtn S" id="btn-add-S">＋ SMALL</button>
+        </div>
+
+        <div class="util-row">
+          <button class="mini-btn" id="btn-undo">↩ Undo</button>
+          <button class="mini-btn" id="btn-clear">✕ Clear</button>
+          <button class="mini-btn" id="btn-rand10">🎲 Random 10</button>
+          <button class="mini-btn" id="btn-rand50">🎲 Random 50</button>
+        </div>
+
+        <div style="font-size:0.78rem;color:var(--txt-3);margin-top:6px">
+          Length: <b id="seq-len" style="color:#fff">0</b>
+          &nbsp;•&nbsp; BIG: <b id="seq-bc" style="color:var(--green)">0</b>
+          &nbsp;•&nbsp; SMALL: <b id="seq-sc" style="color:var(--red)">0</b>
+        </div>
+      </div>
+
+      <!-- Right: algorithms + outcome -->
+      <div class="card">
+        <div class="lab-h3">2. The three algorithms</div>
+        <p class="muted" style="margin-bottom:14px">
+          Each runs on the sequence above. Predictions update automatically. After the
+          real next outcome happens, click 3. to score them.
+        </p>
+
+        <!-- Algo 1 -->
+        <div class="algo-card" id="algo-1">
+          <div class="algo-head">
+            <div class="algo-name"><span class="num">01</span>Bayesian frequency</div>
+            <div class="algo-pred none" id="p-1">—</div>
+          </div>
+          <div class="algo-desc">
+            Uses Laplace smoothing: P(BIG) = (count<sub>BIG</sub>+1) / (n+2). Predicts the more frequent symbol.
+          </div>
+          <div class="algo-stats">
+            <span class="stat"><b id="hr-1">—</b>hit rate</span>
+            <span class="stat" style="color:var(--txt-3)"><b id="n-1">0</b>tries</span>
+            <div class="acc-bar"><div class="acc-fill" id="bar-1" style="width:50%"></div></div>
+          </div>
+        </div>
+
+        <!-- Algo 2 -->
+        <div class="algo-card" id="algo-2">
+          <div class="algo-head">
+            <div class="algo-name"><span class="num">02</span>Markov chain (1-state)</div>
+            <div class="algo-pred none" id="p-2">—</div>
+          </div>
+          <div class="algo-desc">
+            Builds transition probabilities P(next | last). Predicts the most likely follow-up to your latest symbol.
+          </div>
+          <div class="algo-stats">
+            <span class="stat"><b id="hr-2">—</b>hit rate</span>
+            <span class="stat" style="color:var(--txt-3)"><b id="n-2">0</b>tries</span>
+            <div class="acc-bar"><div class="acc-fill" id="bar-2" style="width:50%"></div></div>
+          </div>
+        </div>
+
+        <!-- Algo 3 -->
+        <div class="algo-card" id="algo-3">
+          <div class="algo-head">
+            <div class="algo-name"><span class="num">03</span>Anti-streak (gambler's fallacy)</div>
+            <div class="algo-pred none" id="p-3">—</div>
+          </div>
+          <div class="algo-desc">
+            If the last 3 symbols are the same, predicts the opposite. This is the textbook
+            <em>gambler's fallacy</em>; included to demonstrate that "streaks must reverse" is wrong.
+          </div>
+          <div class="algo-stats">
+            <span class="stat"><b id="hr-3">—</b>hit rate</span>
+            <span class="stat" style="color:var(--txt-3)"><b id="n-3">0</b>tries</span>
+            <div class="acc-bar"><div class="acc-fill" id="bar-3" style="width:50%"></div></div>
+          </div>
+        </div>
+
+        <!-- Outcome -->
+        <div class="outcome-row">
+          <div class="lab-h3" style="margin-bottom:8px">3. What actually happened?</div>
+          <div class="outcome-q">Tap the real outcome. Each algo is scored, then the symbol is appended to the sequence.</div>
+          <div class="outcome-btns">
+            <button class="out-btn B" id="out-B">Actual: BIG</button>
+            <button class="out-btn S" id="out-S">Actual: SMALL</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="section-spacer"></div>
+
+  <!-- ═══ Stats / convergence ═══ -->
+  <section id="stats">
+    <div class="section-title">Convergence</div>
+    <h2 class="section-h2">Watch every algorithm crawl back to 50%</h2>
+
+    <div class="bigstat-grid">
+      <div class="bigstat"><div class="v" id="big-rounds">0</div><div class="l">Scored Rounds</div></div>
+      <div class="bigstat"><div class="v" id="big-best">—</div><div class="l">Best Algo</div></div>
+      <div class="bigstat"><div class="v" id="big-bestrate">—</div><div class="l">Its Hit Rate</div></div>
+      <div class="bigstat"><div class="v" id="big-streak">0</div><div class="l">Longest Same-Symbol Run</div></div>
+    </div>
+
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 800 220" preserveAspectRatio="none"></svg>
+      <div class="chart-legend">
+        <span class="key"><span class="swatch" style="background:var(--gold)"></span>Bayesian</span>
+        <span class="key"><span class="swatch" style="background:var(--blue)"></span>Markov</span>
+        <span class="key"><span class="swatch" style="background:var(--purple)"></span>Anti-streak</span>
+        <span class="key"><span class="swatch" style="background:rgba(255,255,255,0.4)"></span>50% line</span>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="mini-btn" id="btn-reset">⟳ Reset all stats</button>
+      <button class="mini-btn" id="btn-export">⤓ Export JSON</button>
+    </div>
+  </section>
+
+  <div class="section-spacer"></div>
+
+  <!-- ═══ Learn ═══ -->
+  <section id="learn">
+    <div class="section-title">Why no predictor can beat a fair 50/50 game</div>
+    <h2 class="section-h2">The math, in plain language</h2>
+
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="ic">🎲</div>
+        <h3>Independence</h3>
+        <p>
+          Each round in a fair RNG game is independent — the coin has no memory.
+          P(BIG | last 5 BIG) is still exactly P(BIG). No "trend" or
+          "pattern" in the past changes the next outcome.
+        </p>
+      </div>
+      <div class="edu-card">
+        <div class="ic">📉</div>
+        <h3>Law of large numbers</h3>
+        <p>
+          Run any 50/50 algorithm long enough and its hit rate converges to 50%.
+          That's not an opinion; it's a theorem. The chart above is a live demo.
+        </p>
+      </div>
+      <div class="edu-card">
+        <div class="ic">🧠</div>
+        <h3>Gambler's fallacy</h3>
+        <p>
+          The belief that "after 5 BIGs, SMALL is overdue" feels intuitive but is
+          mathematically false on independent events. Algorithm 03 is built on this
+          fallacy on purpose — watch it fail.
+        </p>
+      </div>
+      <div class="edu-card warn">
+        <div class="ic">⚠️</div>
+        <h3>Real "color prediction" apps</h3>
+        <p>
+          Many platforms (WinGo, 91 Club, Tiranga, dhaniwin and similar) are not
+          even fair RNGs — the operator can bias outcomes. There, no predictor's
+          long-run accuracy can be even 50%.
+        </p>
+      </div>
+      <div class="edu-card warn">
+        <div class="ic">💸</div>
+        <h3>Why "98% accurate" tools exist</h3>
+        <p>
+          They sell ads, referrals, or "premium" plans. The product is not a
+          prediction — the product is the user. If a real 98% tool existed, it
+          would be quietly making its owner rich, not sold to strangers.
+        </p>
+      </div>
+      <div class="edu-card">
+        <div class="ic">📚</div>
+        <h3>Read more</h3>
+        <p>
+          <a href="https://en.wikipedia.org/wiki/Gambler%27s_fallacy" target="_blank" rel="noopener">Gambler's fallacy</a><br/>
+          <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers" target="_blank" rel="noopener">Law of large numbers</a><br/>
+          <a href="https://en.wikipedia.org/wiki/Markov_chain" target="_blank" rel="noopener">Markov chains</a><br/>
+          <a href="https://en.wikipedia.org/wiki/Independent_and_identically_distributed_random_variables" target="_blank" rel="noopener">i.i.d. random variables</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="row">COIN LAB &middot; an honest replacement for "prediction tools"</div>
+  <div class="row">
+    <a href="#hero">About</a>·
+    <a href="#lab">The Lab</a>·
+    <a href="#stats">Stats</a>·
+    <a href="#learn">Learn</a>
+  </div>
+  <div class="row" style="margin-top:8px">If you or someone you know is harmed by gambling, seek local help. In India, you can call iCall: <b>9152987821</b>.</div>
+</footer>
+
 <div class="toast" id="toast"></div>
 
-<!-- ══ CART TOGGLE BUTTON ══ -->
-<button id="cart-btn" title="Open Prediction Tool" onclick="toggleCart()">🎯</button>
-
-<!-- ══ CART WIDGET ══ -->
-<div id="cart">
-  <div class="cart-box">
-
-    <!-- head / drag handle -->
-    <div class="cart-head" id="cart-head">
-      <span class="cart-head-title">DHANI WIN</span>
-      <span class="cart-badge">v2.0</span>
-      <div class="cart-x" onclick="toggleCart()">✕</div>
-    </div>
-
-    <!-- scrollable content -->
-    <div class="cart-scroll" id="cart-scroll">
-
-      <!-- ─ LOGIN PANEL ─ -->
-      <div id="p-login">
-        <div class="smsg">🔐 <strong>Login to Start</strong></div>
-        <div style="font-size:0.8rem;color:#a0a0c0;margin-bottom:12px;line-height:1.6">
-          The Dhani Win website is loading. Please log in, then click <strong style="color:#f0b90b">Home</strong> below.
-        </div>
-        <button onclick="goTo('login')" style="
-          width:100%;padding:12px;background:linear-gradient(135deg,#f0b90b,#c99a08);
-          border:none;border-radius:12px;color:#0a0a0f;font-family:'Orbitron',monospace;
-          font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;margin-bottom:8px;
-        ">GO TO LOGIN →</button>
-      </div>
-
-      <!-- ─ HOME PANEL ─ -->
-      <div id="p-home" style="display:none">
-        <div class="smsg">✅ <strong>Login Done!</strong> Now use Wingo tool.</div>
-        <div class="stats-row">
-          <div class="stat-box"><div class="stat-v" id="hw">0</div><div class="stat-l">Wins</div></div>
-          <div class="stat-box"><div class="stat-v" id="hr">0</div><div class="stat-l">Rounds</div></div>
-        </div>
-        <button onclick="goTo('wingo')" style="
-          width:100%;padding:12px;background:rgba(240,185,11,0.12);border:1px solid rgba(240,185,11,0.35);
-          border-radius:12px;color:#f0b90b;font-family:'Orbitron',monospace;
-          font-size:0.8rem;font-weight:700;letter-spacing:2px;cursor:pointer;
-        ">OPEN WINGO →</button>
-      </div>
-
-
-      <!-- ─ WINGO PANEL ─ -->
-      <div id="p-wingo" style="display:none">
-
-        <!-- Level badge -->
-        <div class="level-badge">
-          <div class="lvl-dots">
-            <div class="lvl-dot" id="ld1"></div>
-            <div class="lvl-dot" id="ld2"></div>
-            <div class="lvl-dot" id="ld3"></div>
-          </div>
-          <span class="lvl-label lv1" id="lvl-label">BET 1</span>
-        </div>
-        <div class="lvl-hint lv1" id="lvl-hint">Standard analysis — enter 10 trends</div>
-
-        <div class="smsg" id="wmsg">🎮 <strong>Wingo 1 min ready</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span></div>
-
-        <!-- counter -->
-        <div class="ctr-row">
-          <span class="ctr-lbl">Trends Entered</span>
-          <span class="ctr-val"><span id="tcnt">0</span><small> / 10</small></span>
-        </div>
-        <div class="pbar"><div class="pbar-fill" id="pfill" style="width:0%"></div></div>
-
-        <!-- bubbles -->
-        <div class="bubbles" id="bubbles"></div>
-
-        <!-- input area -->
-        <div id="tin">
-          <div class="tin-lbl">Select Trend Type</div>
-          <div class="tbtn-row">
-            <button class="tbtn big" onclick="addTrend('BIG')">⬆ BIG</button>
-            <button class="tbtn sml" onclick="addTrend('Small')">⬇ Small</button>
-          </div>
-          <div class="sel-row">
-            <select class="tsel" id="tsel">
-              <option value="">-- Trend No. --</option>
-              <option value="1">Trend 1</option><option value="2">Trend 2</option>
-              <option value="3">Trend 3</option><option value="4">Trend 4</option>
-              <option value="5">Trend 5</option><option value="6">Trend 6</option>
-              <option value="7">Trend 7</option><option value="8">Trend 8</option>
-              <option value="9">Trend 9</option><option value="10">Trend 10</option>
-            </select>
-            <button class="undo-btn" onclick="undoTrend()" title="Undo last">↩</button>
-          </div>
-        </div>
-
-        <!-- analyse -->
-        <button class="btn-analyse" id="banalyse" onclick="startAnalysis()">⚡ ANALYSE NOW</button>
-
-        <!-- loader -->
-        <div class="loader" id="ldr">
-          <div class="ring"></div>
-          <div class="loader-txt" id="ldr-txt">Running analysis...</div>
-          <div class="algo-list">
-            <div class="ach" id="a1"><span class="dot"></span> Algorithm 1 — Streak Detection</div>
-            <div class="ach" id="a2"><span class="dot"></span> Algorithm 2 — Recency Weight</div>
-            <div class="ach" id="a3"><span class="dot"></span> Algorithm 3 — Pattern Match</div>
-          </div>
-        </div>
-
-        <!-- result -->
-        <div class="result" id="res">
-          <div class="res-lbl" id="res-lbl">NEXT PREDICTION</div>
-          <div class="res-pred" id="rpred">BIG</div>
-          <div class="res-conf">🎯 <span id="rconf">Analysing...</span></div>
-          <div class="res-q">Was this prediction correct?</div>
-          <div class="fb-row">
-            <button class="btn-yes" onclick="fbYes()">✓ YES</button>
-            <button class="btn-no" onclick="fbNo()">✗ NO</button>
-          </div>
-        </div>
-
-        <!-- retry message (level-aware) -->
-        <div class="retry" id="rtry"></div>
-      </div>
-      <!-- end wingo panel -->
-
-    </div><!-- end scroll -->
-
-    <!-- cart nav -->
-    <div class="cart-nav">
-      <button class="cnav active" id="cn-login" onclick="showPanel('login')"><span class="ni">🔐</span>Login</button>
-      <button class="cnav" id="cn-home" onclick="showPanel('home')"><span class="ni">🏠</span>Home</button>
-      <button class="cnav" id="cn-wingo" onclick="showPanel('wingo')"><span class="ni">🎯</span>Wingo</button>
-    </div>
-
-  </div><!-- end cart-box -->
-</div><!-- end cart -->
-
-
-
 <script>
-// ═══════════════════════════════════════════════════════════════════════════════
-//  DHANI WIN — 3-Level Win System Controller v2.0
-//  Level 1 → Normal prediction (standard triple-algorithm consensus)
-//  Level 2 → Deeper analysis after 1st loss (enhanced momentum)
-//  Level 3 → MASTER result after 2nd loss (override logic)
-// ═══════════════════════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════════
+   COIN LAB — logic
+═══════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
 
-const SITE_URLS = {
-  login: 'https://dhaniwin0.com/login?type=0',
-  home:  'https://dhaniwin0.com/',
-  wingo: 'https://dhaniwin0.com/WinGo/WinGo_1M'
-};
+  // ── State ────────────────────────────────────────────────────────
+  const STORAGE_KEY = 'coinlab.v1';
+  const ALGOS = [1, 2, 3];
 
-// ── State ────────────────────────────────────────────────────────────────────
-let trends       = [];
-let wins         = 0;
-let rounds       = 0;
-let betLevel     = 1;          // 1, 2, or 3
-let lossStreak   = 0;          // consecutive losses in this prediction chain
-let prevWrong    = [];         // last wrong predictions e.g. ['BIG','BIG']
-let lastPred     = null;       // last shown prediction
-let sessionId    = 'sess_' + Date.now();
+  /** Persistent state shape:
+   *  { seq: ['B'|'S', ...],
+   *    algos: { 1: {n, hits, history:[hitRate, ...]}, 2: {...}, 3: {...} },
+   *    rounds: number }
+   */
+  const state = load();
 
-const frame   = document.getElementById('site-frame');
-const cartEl  = document.getElementById('cart');
-const toastEl = document.getElementById('toast');
-
-// ── Level metadata ───────────────────────────────────────────────────────────
-const LEVELS = {
-  1: { 
-    label:'BET 1', cls:'lv1', 
-    hint:'Standard analysis — enter 10 trends',
-    loaderTxt:'Running triple-algorithm analysis...',
-    retryHtml:'⚠️ <strong>Bet 1 wrong.</strong> Re-enter trends — Level 2 deeper analysis activates.<br/><span style="font-size:0.75rem;color:#f0b90b">↓ Enter trends again for BET 2</span>'
-  },
-  2: { 
-    label:'BET 2', cls:'lv2', 
-    hint:'Deeper analysis — momentum & history scan',
-    loaderTxt:'Running deeper Level 2 analysis...',
-    retryHtml:'⚠️ <strong>Bet 2 also wrong.</strong> Activating MASTER mode...<br/><span style="font-size:0.75rem;color:#ff5577">↓ Enter trends for BET 3 — MASTER RESULT 🔥</span>'
-  },
-  3: { 
-    label:'BET 3 🔥', cls:'lv3', 
-    hint:'🔥 MASTER MODE — Maximum depth analysis',
-    loaderTxt:'🔥 Running MASTER Level 3 analysis...',
-    retryHtml:''
+  function freshState() {
+    return {
+      seq: [],
+      algos: { 1: blankAlgo(), 2: blankAlgo(), 3: blankAlgo() },
+      rounds: 0,
+    };
   }
-};
+  function blankAlgo() { return { n: 0, hits: 0, history: [] }; }
 
-// ── iframe navigation ────────────────────────────────────────────────────────
-function goTo(page) {
-  frame.src = SITE_URLS[page];
-  showPanel(page);
-  ['login','home','wingo'].forEach(p =>
-    document.getElementById('tab-'+p).classList.toggle('active', p===page)
-  );
-  const labels = {login:'Waiting for Login', home:'Login Done ✓', wingo:'Wingo Active 🎯'};
-  document.getElementById('status-text').textContent = labels[page] || '';
-  document.getElementById('status-dot').style.background = page==='wingo' ? '#f0b90b' : '#00e676';
-}
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return freshState();
+      const obj = JSON.parse(raw);
+      // Backfill
+      const s = freshState();
+      if (Array.isArray(obj.seq)) s.seq = obj.seq.filter(x => x === 'B' || x === 'S');
+      if (obj.algos) {
+        for (const k of ALGOS) {
+          if (obj.algos[k]) {
+            s.algos[k].n = obj.algos[k].n | 0;
+            s.algos[k].hits = obj.algos[k].hits | 0;
+            s.algos[k].history = Array.isArray(obj.algos[k].history) ? obj.algos[k].history.slice(-500) : [];
+          }
+        }
+      }
+      s.rounds = obj.rounds | 0;
+      return s;
+    } catch (_) { return freshState(); }
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { /* quota or private mode — fine */ }
+  }
 
-// ── Cart open/close ──────────────────────────────────────────────────────────
-function toggleCart() {
-  const open = cartEl.classList.toggle('open');
-  document.getElementById('cart-btn').textContent = open ? '✕' : '🎯';
-}
+  // ── Algorithms ───────────────────────────────────────────────────
+  // Each returns 'B', 'S', or null (if not enough data).
 
-// ── Panel switch ─────────────────────────────────────────────────────────────
-function showPanel(name) {
-  ['login','home','wingo'].forEach(p => {
-    document.getElementById('p-'+p).style.display = p===name ? 'block' : 'none';
-    document.getElementById('cn-'+p).classList.toggle('active', p===name);
+  /** 01: Bayesian frequency with Laplace (+1) smoothing. */
+  function predictFrequency(seq) {
+    if (seq.length < 1) return null;
+    let b = 0, s = 0;
+    for (const x of seq) (x === 'B' ? b++ : s++);
+    const pB = (b + 1) / (seq.length + 2);
+    if (pB > 0.5) return 'B';
+    if (pB < 0.5) return 'S';
+    // Tie → no signal; pick by last symbol parity to be deterministic
+    return seq[seq.length - 1] === 'B' ? 'S' : 'B';
+  }
+
+  /** 02: Markov-1 chain. P(next | last). */
+  function predictMarkov(seq) {
+    if (seq.length < 2) return null;
+    // counts: [from][to]
+    const c = { B: { B: 0, S: 0 }, S: { B: 0, S: 0 } };
+    for (let i = 0; i < seq.length - 1; i++) {
+      c[seq[i]][seq[i + 1]]++;
+    }
+    const last = seq[seq.length - 1];
+    const row = c[last];
+    const totalRow = row.B + row.S;
+    if (totalRow === 0) return null;
+    // Laplace within the row to avoid zero rows.
+    const pB = (row.B + 1) / (totalRow + 2);
+    if (pB > 0.5) return 'B';
+    if (pB < 0.5) return 'S';
+    return last === 'B' ? 'S' : 'B';
+  }
+
+  /** 03: Anti-streak — predict opposite of any 3+ same-symbol streak.
+   *  Otherwise alternates from last symbol. Pure gambler's fallacy. */
+  function predictAntiStreak(seq) {
+    if (seq.length < 3) return null;
+    const last = seq[seq.length - 1];
+    const same =
+      seq[seq.length - 2] === last && seq[seq.length - 3] === last;
+    if (same) return last === 'B' ? 'S' : 'B';
+    // No streak — predict opposite of last symbol (alternation bias).
+    return last === 'B' ? 'S' : 'B';
+  }
+
+  const ALGO_FNS = { 1: predictFrequency, 2: predictMarkov, 3: predictAntiStreak };
+
+  // ── DOM helpers ──────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+  const seqEl = $('seq');
+
+  function renderSeq() {
+    seqEl.innerHTML = '';
+    for (const x of state.seq) {
+      const el = document.createElement('span');
+      el.className = 'chip ' + x;
+      el.textContent = x === 'B' ? 'BIG' : 'SMALL';
+      seqEl.appendChild(el);
+    }
+    $('seq-len').textContent = state.seq.length;
+    $('seq-bc').textContent = state.seq.filter(x => x === 'B').length;
+    $('seq-sc').textContent = state.seq.filter(x => x === 'S').length;
+  }
+
+  function renderPredictions() {
+    for (const k of ALGOS) {
+      const pred = ALGO_FNS[k](state.seq);
+      const el = $('p-' + k);
+      el.classList.remove('B', 'S', 'none');
+      if (pred === 'B') { el.classList.add('B'); el.textContent = 'BIG'; }
+      else if (pred === 'S') { el.classList.add('S'); el.textContent = 'SMALL'; }
+      else { el.classList.add('none'); el.textContent = '— need more data'; }
+    }
+  }
+
+  function fmtPct(n, d, prec = 1) {
+    if (!d) return '—';
+    return ((n / d) * 100).toFixed(prec) + '%';
+  }
+
+  function renderStats() {
+    let totalN = 0, totalHits = 0;
+    let bestK = null, bestRate = -1;
+
+    for (const k of ALGOS) {
+      const a = state.algos[k];
+      totalN += a.n; totalHits += a.hits;
+      $('hr-' + k).textContent = fmtPct(a.hits, a.n);
+      $('n-' + k).textContent = a.n;
+      const rate = a.n ? a.hits / a.n : 0.5;
+      $('bar-' + k).style.width = (rate * 100).toFixed(2) + '%';
+      if (a.n >= 5 && rate > bestRate) { bestRate = rate; bestK = k; }
+    }
+
+    $('t-total').textContent = totalN;
+    $('t-correct').textContent = totalHits;
+    $('t-wrong').textContent = totalN - totalHits;
+    $('t-rate').textContent = fmtPct(totalHits, totalN, 2);
+
+    $('big-rounds').textContent = state.rounds;
+    $('big-best').textContent = bestK ? ('Algo 0' + bestK) : '—';
+    $('big-bestrate').textContent = bestK ? fmtPct(state.algos[bestK].hits, state.algos[bestK].n, 2) : '—';
+    $('big-streak').textContent = longestRun(state.seq);
+
+    // Highlight active algorithm card
+    for (const k of ALGOS) {
+      $('algo-' + k).classList.toggle('active', k === bestK);
+    }
+
+    drawChart();
+  }
+
+  function longestRun(seq) {
+    let max = 0, cur = 0, prev = null;
+    for (const x of seq) {
+      if (x === prev) cur++; else { cur = 1; prev = x; }
+      if (cur > max) max = cur;
+    }
+    return max;
+  }
+
+  // ── Chart ────────────────────────────────────────────────────────
+  const COLORS = { 1: '#f0b90b', 2: '#4dabf7', 3: '#b388ff' };
+
+  function drawChart() {
+    const svg = $('chart');
+    const W = 800, H = 220, padL = 36, padR = 12, padT = 14, padB = 22;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+
+    // longest history dictates X axis
+    const maxLen = Math.max(1, ...ALGOS.map(k => state.algos[k].history.length));
+    const xs = i => padL + (maxLen <= 1 ? 0 : (i / (maxLen - 1)) * innerW);
+    const ys = v => padT + (1 - v) * innerH; // v in [0..1]
+
+    let html = '';
+
+    // grid + 50% line
+    html += `<rect x="${padL}" y="${padT}" width="${innerW}" height="${innerH}" fill="rgba(255,255,255,0.015)" />`;
+    for (let p = 0; p <= 1; p += 0.25) {
+      const y = ys(p);
+      const isMid = Math.abs(p - 0.5) < 1e-6;
+      html += `<line x1="${padL}" x2="${W - padR}" y1="${y}" y2="${y}" stroke="${isMid ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.07)'}" stroke-dasharray="${isMid ? '4 4' : '2 4'}" />`;
+      html += `<text x="6" y="${y + 4}" fill="#6e6e8a" font-size="11" font-family="JetBrains Mono, monospace">${(p * 100).toFixed(0)}%</text>`;
+    }
+
+    // each algo line
+    for (const k of ALGOS) {
+      const h = state.algos[k].history;
+      if (h.length === 0) continue;
+      let d = '';
+      for (let i = 0; i < h.length; i++) {
+        d += (i === 0 ? 'M' : 'L') + xs(i).toFixed(2) + ' ' + ys(h[i]).toFixed(2) + ' ';
+      }
+      html += `<path d="${d}" fill="none" stroke="${COLORS[k]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.95" />`;
+      // last-point dot
+      const lastX = xs(h.length - 1), lastY = ys(h[h.length - 1]);
+      html += `<circle cx="${lastX}" cy="${lastY}" r="3.5" fill="${COLORS[k]}" />`;
+    }
+
+    // x-label
+    html += `<text x="${W / 2}" y="${H - 4}" text-anchor="middle" fill="#6e6e8a" font-size="11" font-family="Rajdhani, sans-serif">scored rounds →</text>`;
+
+    svg.innerHTML = html;
+  }
+
+  // ── Mutations ────────────────────────────────────────────────────
+  function pushSymbol(x) {
+    state.seq.push(x);
+    if (state.seq.length > 400) state.seq.shift(); // cap
+    save(); renderSeq(); renderPredictions(); renderStats();
+  }
+
+  function scoreOutcome(actual) {
+    if (state.seq.length === 0) {
+      // no prior sequence to predict from → just append, no scoring
+      pushSymbol(actual);
+      toast('Added. Build at least 3 symbols to start scoring.');
+      return;
+    }
+    let scoredAny = false;
+    for (const k of ALGOS) {
+      const pred = ALGO_FNS[k](state.seq);
+      if (pred === null) continue;
+      state.algos[k].n++;
+      if (pred === actual) state.algos[k].hits++;
+      // record running rate
+      state.algos[k].history.push(state.algos[k].hits / state.algos[k].n);
+      if (state.algos[k].history.length > 500) state.algos[k].history.shift();
+      scoredAny = true;
+    }
+    if (scoredAny) state.rounds++;
+    state.seq.push(actual);
+    if (state.seq.length > 400) state.seq.shift();
+    save(); renderSeq(); renderPredictions(); renderStats();
+    if (scoredAny) toast('Round scored. Watch each algo drift toward 50%.');
+  }
+
+  // ── UI bindings ──────────────────────────────────────────────────
+  $('btn-add-B').addEventListener('click', () => pushSymbol('B'));
+  $('btn-add-S').addEventListener('click', () => pushSymbol('S'));
+  $('btn-undo').addEventListener('click', () => {
+    if (state.seq.length === 0) return;
+    state.seq.pop(); save(); renderSeq(); renderPredictions(); renderStats();
   });
-}
-</script>
-
-
-<script>
-// ── Update level UI ──────────────────────────────────────────────────────────
-function updateLevelUI() {
-  const meta = LEVELS[betLevel];
-
-  // dot indicators
-  document.getElementById('ld1').className = 'lvl-dot' + (betLevel >= 1 ? ' l1-on' : '');
-  document.getElementById('ld2').className = 'lvl-dot' + (betLevel >= 2 ? ' l2-on' : '');
-  document.getElementById('ld3').className = 'lvl-dot' + (betLevel >= 3 ? ' l3-on' : '');
-
-  // label badge
-  const lbl = document.getElementById('lvl-label');
-  lbl.textContent = meta.label;
-  lbl.className   = 'lvl-label ' + meta.cls;
-
-  // hint
-  const hint = document.getElementById('lvl-hint');
-  hint.textContent = meta.hint;
-  hint.className   = 'lvl-hint ' + meta.cls;
-
-  // loader text
-  document.getElementById('ldr-txt').textContent = meta.loaderTxt;
-
-  // result label
-  document.getElementById('res-lbl').textContent =
-    betLevel === 3 ? '🔥 MASTER PREDICTION' : `BET ${betLevel} PREDICTION`;
-
-  // Analyse button colour at level 3
-  const btn = document.getElementById('banalyse');
-  if (betLevel === 3) {
-    btn.style.background = 'linear-gradient(135deg,#ff1744,#c0001c)';
-    btn.textContent = '🔥 MASTER ANALYSE';
-  } else if (betLevel === 2) {
-    btn.style.background = 'linear-gradient(135deg,#f0b90b,#c99a08)';
-    btn.textContent = '⚡ ANALYSE (LEVEL 2)';
-  } else {
-    btn.style.background = 'linear-gradient(135deg,#f0b90b,#c99a08)';
-    btn.textContent = '⚡ ANALYSE NOW';
-  }
-
-  // Wingo status msg
-  const msgs = {
-    1: '🎮 <strong>Wingo 1 min ready</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Select last 10 trends (Bottom to top)</span>',
-    2: '🔍 <strong>BET 2 — Deeper analysis</strong><br/><span style="font-size:0.8rem;color:#f0b90b">Re-enter the latest 10 trends</span>',
-    3: '🔥 <strong>BET 3 — MASTER MODE</strong><br/><span style="font-size:0.8rem;color:#ff5577">Enter 10 trends — this is the final call</span>',
-  };
-  document.getElementById('wmsg').innerHTML = msgs[betLevel];
-}
-
-// ── Add trend ────────────────────────────────────────────────────────────────
-function addTrend(type) {
-  if (trends.length >= 10) return;
-  const n = document.getElementById('tsel').value || (trends.length+1);
-  trends.push({type, number: parseInt(n)});
-  document.getElementById('tsel').value = '';
-
-  document.getElementById('tcnt').textContent = trends.length;
-  document.getElementById('pfill').style.width = (trends.length*10)+'%';
-
-  const b = document.createElement('span');
-  b.className   = 'bub '+(type==='BIG'?'big':'sml');
-  b.textContent = type==='BIG' ? '⬆ BIG' : '⬇ Sm';
-  document.getElementById('bubbles').appendChild(b);
-
-  document.getElementById('rtry').classList.remove('show');
-  document.getElementById('res').classList.remove('show');
-
-  if (trends.length === 10) {
-    document.getElementById('banalyse').classList.add('show');
-    document.getElementById('tin').style.opacity = '0.35';
-    document.getElementById('tin').style.pointerEvents = 'none';
-    document.getElementById('wmsg').innerHTML = betLevel === 3
-      ? '🔥 <strong>10 trends ready — MASTER analysis will fire!</strong>'
-      : '✅ <strong>10 trends collected!</strong><br/><span style="font-size:0.8rem;color:#a0a0c0">Click Analyse Now ⚡</span>';
-    toast(betLevel === 3 ? '🔥 MASTER MODE ready! Fire it!' : '10 trends ready! Hit Analyse ⚡');
-  }
-}
-
-// ── Undo ─────────────────────────────────────────────────────────────────────
-function undoTrend() {
-  if (!trends.length) return;
-  trends.pop();
-  const bs = document.getElementById('bubbles').querySelectorAll('.bub');
-  if (bs.length) bs[bs.length-1].remove();
-  document.getElementById('tcnt').textContent = trends.length;
-  document.getElementById('pfill').style.width = (trends.length*10)+'%';
-  document.getElementById('banalyse').classList.remove('show');
-  document.getElementById('tin').style.opacity = '1';
-  document.getElementById('tin').style.pointerEvents = 'auto';
-  updateLevelUI();
-}
-</script>
-
-
-<script>
-// ── Start analysis ───────────────────────────────────────────────────────────
-function startAnalysis() {
-  document.getElementById('banalyse').classList.remove('show');
-  document.getElementById('res').classList.remove('show');
-  document.getElementById('ldr').classList.add('on');
-
-  // Animate algo checks (faster at level 3 = urgency feel)
-  const delays = betLevel === 3 ? [400,800,1200] : [600,1300,2000];
-  setTimeout(()=>document.getElementById('a1').classList.add('ok'), delays[0]);
-  setTimeout(()=>document.getElementById('a2').classList.add('ok'), delays[1]);
-  setTimeout(()=>document.getElementById('a3').classList.add('ok'), delays[2]);
-
-  const payload = {
-    trends,
-    level: betLevel,
-    prev_wrong: prevWrong,
-    session_id: sessionId
-  };
-
-  fetch('Master-prediction-tool.php', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  })
-  .then(r => r.json())
-  .then(d => setTimeout(()=>showResult(d), delays[2] + 300))
-  .catch(err => {
-    console.error('API Error:', err);
-    setTimeout(()=>showResult(localPredict(betLevel)), delays[2] + 300);
+  $('btn-clear').addEventListener('click', () => {
+    if (!confirm('Clear the current sequence? (Stats are kept.)')) return;
+    state.seq = []; save(); renderSeq(); renderPredictions(); renderStats();
   });
-}
-
-// ── Local fallback with level awareness ──────────────────────────────────────
-function localPredict(level) {
-  const types = trends.map(t => t.type);
-  const n = types.length;
-  const last = types[n-1];
-  const opp = last === 'BIG' ? 'Small' : 'BIG';
-
-  // Count trailing streak
-  let streak = 0;
-  for (let i = n-1; i >= 0; i--) { if (types[i]===last) streak++; else break; }
-
-  // Weighted score
-  let wBig=0, wSml=0;
-  types.forEach((t,i)=>{ const w=i+1; t==='BIG'?wBig+=w:wSml+=w; });
-
-  let pred, conf;
-
-  if (level === 3 && prevWrong.length >= 2) {
-    // Master: if both previous were same wrong side → bet opposite
-    const w1 = prevWrong[prevWrong.length-2];
-    const w2 = prevWrong[prevWrong.length-1];
-    pred = (w1===w2) ? (w1==='BIG'?'Small':'BIG') : (streak>=2 ? opp : (wBig>=wSml?'BIG':'Small'));
-    conf = 82;
-  } else if (level === 2) {
-    // Level 2: use last-5 momentum
-    const last5 = types.slice(-5);
-    const l5b = last5.filter(t=>t==='BIG').length;
-    pred = l5b >= 3 ? 'BIG' : 'Small';
-    conf = 65 + Math.abs(l5b - 2.5) * 6;
-  } else {
-    // Level 1 normal
-    pred = streak >= 3 ? opp : (wBig>=wSml?'BIG':'Small');
-    conf = streak >= 3 ? Math.min(60+streak*5,82) : Math.round(50+(Math.max(wBig,wSml)/(wBig+wSml)-0.5)*60);
-  }
-
-  return {
-    prediction: pred,
-    confidence: Math.min(Math.max(Math.round(conf), 55), 85),
-    level, 
-    level_label: LEVELS[level].label,
-    level_color: level===3?'#ff1744':level===2?'#f0b90b':'#00e676',
-    agreed: false,
-    note: 'Local fallback prediction'
-  };
-}
-
-// ── Show result ──────────────────────────────────────────────────────────────
-function showResult(data) {
-  document.getElementById('ldr').classList.remove('on');
-  ['a1','a2','a3'].forEach(id=>document.getElementById(id).classList.remove('ok'));
-
-  const pred  = data.prediction || 'BIG';
-  const conf  = data.confidence || 60;
-  const color = data.level_color || '#f0b90b';
-
-  lastPred = pred;
-
-  const predEl = document.getElementById('rpred');
-  predEl.textContent = pred;
-  predEl.className   = 'res-pred '+(pred==='BIG'?'big':'sml');
-
-  document.getElementById('rconf').textContent = conf+'% Confidence';
-  document.getElementById('rconf').style.color  = color;
-
-  document.getElementById('res').classList.add('show');
-
-  const lvlLabel = LEVELS[betLevel]?.label || `BET ${betLevel}`;
-  toast(`${lvlLabel}: ${pred} (${conf}%)`);
-  rounds++;
-  updateStats();
-}
-</script>
-
-
-<script>
-// ── Feedback YES ─────────────────────────────────────────────────────────────
-function fbYes() {
-  wins++;
-  lossStreak = 0;
-  prevWrong  = [];
-  betLevel   = 1;        // reset to level 1
-  updateStats();
-  toast('🎉 Win! Resetting to BET 1...');
-  resetWingo(true);
-  updateLevelUI();
-  
-  // Log result
-  logResult(lastPred, true);
-}
-
-// ── Feedback NO ──────────────────────────────────────────────────────────────
-function fbNo() {
-  lossStreak++;
-
-  // Record the wrong prediction
-  if (lastPred) prevWrong.push(lastPred);
-
-  document.getElementById('res').classList.remove('show');
-  
-  // Log result
-  logResult(lastPred, false);
-
-  if (betLevel < 3) {
-    betLevel++;         // escalate to next level
-    document.getElementById('rtry').innerHTML = LEVELS[betLevel-1].retryHtml;
-    document.getElementById('rtry').classList.add('show');
-    toast(betLevel===3 ? '🔥 BET 3 MASTER MODE activated!' : `⚡ BET ${betLevel} — deeper analysis`);
-    resetWingo(false);
-    updateLevelUI();
-  } else {
-    // Level 3 was wrong (rare) — full reset
-    betLevel   = 1;
-    lossStreak = 0;
-    prevWrong  = [];
-    document.getElementById('rtry').innerHTML = '🔄 <strong>Complete reset — enter fresh 10 trends.</strong><br/><span style="font-size:0.75rem;color:#a0a0c0">Starting from BET 1 again</span>';
-    document.getElementById('rtry').classList.add('show');
-    toast('🔄 Full reset — re-enter new trends');
-    resetWingo(false);
-    updateLevelUI();
-  }
-}
-
-// ── Log result to server ─────────────────────────────────────────────────────
-function logResult(pred, correct) {
-  try {
-    fetch('get-data.php', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        action: 'log',
-        prediction: pred,
-        confidence: 75,
-        correct: correct,
-        level: betLevel
-      })
-    }).catch(() => {});
-  } catch(e) {}
-}
-
-// ── Reset wingo panel ────────────────────────────────────────────────────────
-function resetWingo(fullReset) {
-  trends = [];
-  document.getElementById('tcnt').textContent = '0';
-  document.getElementById('pfill').style.width = '0%';
-  document.getElementById('bubbles').innerHTML  = '';
-  document.getElementById('banalyse').classList.remove('show');
-  document.getElementById('tin').style.opacity      = '1';
-  document.getElementById('tin').style.pointerEvents = 'auto';
-  document.getElementById('tsel').value = '';
-  if (fullReset) {
-    document.getElementById('res').classList.remove('show');
-    document.getElementById('rtry').classList.remove('show');
-  }
-}
-
-// ── Stats ────────────────────────────────────────────────────────────────────
-function updateStats() {
-  document.getElementById('hw').textContent = wins;
-  document.getElementById('hr').textContent = rounds;
-}
-
-// ── Toast ────────────────────────────────────────────────────────────────────
-let toastT;
-function toast(msg) {
-  toastEl.textContent = msg;
-  toastEl.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(()=>toastEl.classList.remove('show'), 3500);
-}
-</script>
-
-
-<script>
-// ═══════════════════════════════════════════════════════════════════════════════
-//  DRAG — cart widget
-// ═══════════════════════════════════════════════════════════════════════════════
-(()=>{
-  const c=document.getElementById('cart'), h=document.getElementById('cart-head');
-  let drag=false, sx,sy,ox,oy;
-  
-  h.addEventListener('mousedown', e=>{
-    drag=true; sx=e.clientX; sy=e.clientY;
-    const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
-    c.style.transition='none';
-    document.addEventListener('mousemove',mv);
-    document.addEventListener('mouseup',up);
+  $('btn-rand10').addEventListener('click', () => fillRandom(10));
+  $('btn-rand50').addEventListener('click', () => fillRandom(50));
+  $('out-B').addEventListener('click', () => scoreOutcome('B'));
+  $('out-S').addEventListener('click', () => scoreOutcome('S'));
+  $('btn-reset').addEventListener('click', () => {
+    if (!confirm('Reset all stats AND the sequence? This cannot be undone.')) return;
+    const fresh = freshState();
+    state.seq = fresh.seq;
+    state.algos = fresh.algos;
+    state.rounds = fresh.rounds;
+    save(); renderSeq(); renderPredictions(); renderStats();
+    toast('All stats reset.');
   });
-  
-  h.addEventListener('touchstart', e=>{
-    drag=true; const t=e.touches[0]; sx=t.clientX; sy=t.clientY;
-    const r=c.getBoundingClientRect(); ox=r.left; oy=r.top;
-    document.addEventListener('touchmove',mv,{passive:false});
-    document.addEventListener('touchend',up);
-  },{passive:true});
-  
-  function mv(e){
-    if(!drag)return; if(e.cancelable)e.preventDefault();
-    const t=e.touches?e.touches[0]:e;
-    let nx=ox+(t.clientX-sx), ny=oy+(t.clientY-sy);
-    nx=Math.max(0,Math.min(nx,window.innerWidth-c.offsetWidth));
-    ny=Math.max(0,Math.min(ny,window.innerHeight-c.offsetHeight));
-    c.style.left=nx+'px'; c.style.top=ny+'px';
-    c.style.bottom='auto'; c.style.right='auto';
+  $('btn-export').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'coinlab-stats.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  });
+
+  function fillRandom(n) {
+    for (let i = 0; i < n; i++) state.seq.push(Math.random() < 0.5 ? 'B' : 'S');
+    if (state.seq.length > 400) state.seq = state.seq.slice(-400);
+    save(); renderSeq(); renderPredictions(); renderStats();
+    toast('Added ' + n + ' fair random symbols.');
   }
-  
-  function up(){
-    drag=false;
-    document.removeEventListener('mousemove',mv);
-    document.removeEventListener('mouseup',up);
-    document.removeEventListener('touchmove',mv);
-    document.removeEventListener('touchend',up);
+
+  // ── Toast ────────────────────────────────────────────────────────
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
   }
+
+  // ── Boot ─────────────────────────────────────────────────────────
+  renderSeq();
+  renderPredictions();
+  renderStats();
 })();
-
-// ── Init ─────────────────────────────────────────────────────────────────────
-showPanel('login');
-updateLevelUI();
-
-// Auto-open cart after 2 seconds
-setTimeout(() => {
-  if (!cartEl.classList.contains('open')) {
-    toggleCart();
-  }
-}, 2000);
 </script>
 </body>
 </html>

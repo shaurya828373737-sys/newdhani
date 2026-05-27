@@ -1,110 +1,97 @@
-# DHANI WIN — Master Prediction Tool
+# COIN LAB
 
-> **98% accuracy Wingo prediction engine** with triple-algorithm analysis, floating cart UI, and Python+PHP backend.
+> An honest probability laboratory. Single-file, zero backend, runs in any browser.
 
----
+COIN LAB is the replacement for what this repository used to be: a "color
+prediction" tool that claimed 98% accuracy on platforms like WinGo / dhaniwin.
+That tool could not work, and any tool that claims to is selling a fantasy.
+This repository now does the opposite — it **proves** to the user, live and with
+real numbers, that no algorithm can beat a fair 50/50 process.
 
-## 📁 File Structure
+## What it does
+
+You feed COIN LAB a sequence of `BIG` / `SMALL` symbols (or generate a random
+one). Three real algorithms run on it in parallel and each predicts the next
+symbol:
+
+| # | Algorithm | What it actually does |
+|---|---|---|
+| 01 | **Bayesian frequency** | `P(BIG) = (count_BIG + 1) / (n + 2)` with Laplace smoothing. Picks the more frequent symbol. |
+| 02 | **Markov chain (1‑state)** | Builds `P(next | last)` transition probabilities. Predicts the most likely follow‑up to your latest symbol. |
+| 03 | **Anti‑streak** | Predicts the opposite of any 3+ same‑symbol streak. Pure gambler's‑fallacy bot — included on purpose, to demonstrate it fails. |
+
+After the real next outcome happens you click `Actual: BIG` or `Actual: SMALL`.
+COIN LAB:
+
+1. Scores every algorithm against that outcome.
+2. Updates each algorithm's running hit rate.
+3. Plots all three curves on a live SVG convergence chart.
+4. Appends the real outcome to the sequence.
+
+Run it long enough on any fair‑random data and every line on the chart drifts
+toward the dashed `50%` reference line. That's the law of large numbers — the
+point of the whole site.
+
+## Why this exists
+
+So‑called color‑prediction apps (WinGo, 91 Club, Tiranga, dhaniwin and many
+others) have caused real, large financial harm to real people. The marketing
+trick is always the same: a slick UI plus invented "AI / triple‑algorithm /
+Fibonacci / entropy" jargon plus a fake 90%+ accuracy badge. The math behind it
+is always wrong, for two reasons:
+
+- **If the platform is a fair RNG**, past trends do not predict future
+  outcomes. Every round is independent.
+- **If the platform is not a fair RNG** (most of these aren't), the operator
+  controls the outcome and biases against the player whenever it matters. No
+  external predictor can model an adversary's hidden policy.
+
+Either way, the long‑run accuracy of any such "predictor" is at best 50%, and
+in practice less. COIN LAB lets anyone confirm that on their own device, in
+their own browser, with no one to trust but the math.
+
+## Running it
+
+There is nothing to install or build.
+
+```bash
+# any static server works, for example:
+python3 -m http.server 8000
+# then open http://localhost:8000
+```
+
+Or push the repo to GitHub Pages and it works as‑is.
+
+All state (sequence + per‑algorithm hit rates + history) lives in
+`localStorage` under the key `coinlab.v1`. Click **Reset all stats** to wipe.
+Click **Export JSON** to download your data.
+
+## File layout
 
 ```
-newdhani/
-├── index.html                    ← Main UI + Floating Cart
-├── UI-look.css                   ← Global styles, layout, animations
-├── get-accurate-result.css       ← Cart widget styles, result display
-├── get-data.json                 ← Session state & pattern weights
-├── get-data.php                  ← Data read/write/log handler
-├── Master-prediction-tool.php    ← 🧠 Main orchestrator (entry point)
-├── Calculation.php               ← Triple-algo aggregator
-├── First-time-trend-anylyse.php  ← Algorithm #1: Streak & Reversal
-├── Second-time-anylyse.php       ← Algorithm #2: Momentum & Recency
-├── Third-time-anylyse.php        ← Algorithm #3: Entropy & Statistics
-├── Python.php                    ← Python environment orchestrator
-├── Python-algo.php               ← Python bridge + PHP fallback
-├── Python-help.php               ← Script generator & env checker
-├── Python-get-prediction.php     ← Combined PHP+Python prediction
-└── Help-to-take-accurate.php     ← Confidence boost & edge correction
+index.html      Whole app: HTML + CSS + JS in one file.
+README.md       This file.
 ```
 
----
+The previous PHP / CSS files (the WinGo predictor) have been removed.
 
-## 🚀 How It Works
+## Tech
 
-### 1. Cart Flow
-| Page URL | Cart Shows |
-|----------|-----------|
-| `/login?type=0` | "Login Now, Tool is waiting..." |
-| `/` (Home) | "Login Done... Now use Wingo tool." |
-| `/WinGo/WinGo_1M` | Wingo trend input + prediction |
+- Plain HTML / CSS / vanilla JavaScript. No build step, no framework.
+- Google Fonts: Orbitron, Rajdhani, JetBrains Mono.
+- SVG chart is hand‑rolled — no Chart.js or D3 dependency.
+- Mobile‑responsive at ≤880px and ≤980px breakpoints.
 
-### 2. Prediction Pipeline
-```
-User enters 10 trends (BIG / Small)
-        ↓
-Master-prediction-tool.php
-        ↓
-   ┌────┴────────────────────┐
-   │  Calculation.php        │  (PHP Triple Analysis)
-   │  ├─ First-time-anylyse  │  → Streak reversal patterns
-   │  ├─ Second-time-anylyse │  → Momentum & pair patterns
-   │  └─ Third-time-anylyse  │  → Entropy & transition matrix
-   └────┬────────────────────┘
-        ↓
-Python-get-prediction.php   (Python + PHP combined)
-        ↓
-Help-to-take-accurate.php   (Confidence boost + edge correction)
-        ↓
-   JSON → Cart displays: "Next result: BIG / Small"
-```
+## A note for anyone landing here from a "win prediction" search
 
-### 3. Consensus Rule
-> A prediction is only shown when **all 3 PHP algorithms agree**. If there is disagreement, a weighted majority vote is used with conflict resolution.
+If you came here looking for a tool that tells you the next color or the next
+big/small on dhaniwin / 91 club / a similar app: that tool does not exist
+anywhere. Anyone selling it is selling either ad views, a referral funnel, or a
+"premium plan" — never a working predictor.
 
----
+If you or someone you know is being harmed by online betting, in India you can
+contact **iCall** at **9152987821** for free, confidential support.
 
-## ⚙️ Installation
+## License
 
-1. Upload all files to your PHP server (PHP 7.4+)
-2. Ensure `get-data.json` is **writable** by the web server:
-   ```bash
-   chmod 664 get-data.json
-   ```
-3. Open `index.html` in browser
-4. Python is **optional** — PHP fallback activates automatically if `python3` is unavailable
-
----
-
-## 🎯 Usage
-
-1. Click the **gold 🎯 button** (bottom-right) to open the Cart
-2. Click **Login** → go to dhaniwin0.com and log in
-3. Click **Home** in the cart nav → status updates to "Login Done"
-4. Click **Wingo** → enter 10 trends (BIG / Small) from game history
-5. Click **⚡ ANALYSE NOW** → wait for triple analysis
-6. Result shows: confirm with **YES** (reset) or **NO** (retry mode)
-
----
-
-## 🔧 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `Master-prediction-tool.php` | POST | Main prediction (JSON body: `{trends, retry}`) |
-| `get-data.php?action=stats` | GET | Session stats |
-| `get-data.php?action=reset` | POST | Reset trends |
-| `Help-to-take-accurate.php?action=report` | GET | Accuracy report |
-| `Python-help.php?action=check` | GET | Python env status |
-
----
-
-## 📊 Algorithms
-
-| # | File | Strategy | Weight |
-|---|------|----------|--------|
-| 1 | `First-time-trend-anylyse.php` | Streak reversal, majority, zigzag, Fibonacci | 30% |
-| 2 | `Second-time-anylyse.php` | Exponential recency, momentum shift, pair/triple patterns | 35% |
-| 3 | `Third-time-anylyse.php` | Transition matrix, Shannon entropy, window analysis, mirror | 35% |
-| + | `Python-algo.php` | Python ML-style recency + entropy (bonus signal) | bonus |
-
----
-
-*DHANI WIN © 2025 — For entertainment purposes. Use responsibly.*
+MIT. Use it, fork it, ship it. Just don't bolt a fake accuracy claim back on.
